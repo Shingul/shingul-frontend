@@ -23,13 +23,15 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-text">Your Study Sets</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text">
+              Your Study Sets
+            </h1>
             <Link
               href="/study-sets/new"
-              className="px-6 py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base text-center"
             >
               Create new
             </Link>
@@ -40,7 +42,7 @@ export default function DashboardPage() {
               <LoadingSpinner size="lg" />
             </div>
           ) : studySets && studySets.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {studySets.map((studySet) => (
                 <StudySetCard key={studySet.id} studySet={studySet} />
               ))}

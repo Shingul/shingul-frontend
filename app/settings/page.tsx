@@ -17,7 +17,7 @@ async function fetchUser(): Promise<User | null> {
   try {
     const response = await apiFetch<AuthMeResponse>("/auth/me");
     return response.data.user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -48,11 +48,13 @@ export default function SettingsPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-text mb-8">Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text mb-6 sm:mb-8">
+            Settings
+          </h1>
 
-          <div className="glass rounded-2xl p-8 space-y-6">
+          <div className="glass rounded-2xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
             <div>
               <h2 className="text-xl font-bold text-text mb-4">Account</h2>
               {user ? (
@@ -68,19 +70,19 @@ export default function SettingsPage() {
                   <button
                     onClick={() => logoutMutation.mutate()}
                     disabled={logoutMutation.isPending}
-                    className="px-6 py-3 bg-red-500/20 text-red-400 rounded-xl font-semibold hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-red-500/20 text-red-400 rounded-xl font-semibold hover:bg-red-500/30 transition-colors disabled:opacity-50 text-sm sm:text-base"
                   >
                     {logoutMutation.isPending ? "Logging out..." : "Logout"}
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-muted">
+                  <p className="text-sm sm:text-base text-muted">
                     You&apos;re signed in as a guest.
                   </p>
                   <button
                     onClick={() => router.push("/login")}
-                    className="px-6 py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base"
                   >
                     Sign in
                   </button>

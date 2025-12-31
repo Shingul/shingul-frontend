@@ -110,19 +110,19 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div>
-              <h1 className="text-5xl lg:text-6xl font-bold text-text mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text mb-4 sm:mb-6 leading-tight">
                 Turn your PDFs into{" "}
                 <span className="bg-linear-to-r from-primary2 via-primary to-accent bg-clip-text text-transparent">
                   flashcards & quizzes
                 </span>
               </h1>
-              <p className="text-xl text-muted mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-muted mb-6 sm:mb-8">
                 Upload notes. Study smarter. No signup required.
               </p>
 
               {/* Study Set Creation Form */}
-              <div className="glass rounded-2xl p-8 glow-primary mb-6">
-                <h2 className="text-2xl font-bold text-text mb-6">
+              <div className="glass rounded-2xl p-4 sm:p-6 md:p-8 glow-primary mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-text mb-4 sm:mb-6">
                   Create Your Study Set
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -149,16 +149,18 @@ export default function LandingPage() {
                     <label className="block text-sm font-semibold text-text mb-2">
                       Upload PDFs
                     </label>
-                    <div className="glass rounded-xl p-8 border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
+                    <div className="glass rounded-xl p-4 sm:p-6 md:p-8 border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
                       <div className="text-center">
-                        <div className="text-4xl mb-3">📄</div>
-                        <p className="text-text font-semibold mb-2 text-sm">
+                        <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                          📄
+                        </div>
+                        <p className="text-text font-semibold mb-2 text-xs sm:text-sm">
                           Drag & drop PDF files here
                         </p>
-                        <p className="text-muted text-xs mb-3">or</p>
+                        <p className="text-muted text-xs mb-2 sm:mb-3">or</p>
                         <button
                           type="button"
-                          className="px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors text-sm"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors text-xs sm:text-sm"
                           disabled={uploadState !== "idle"}
                         >
                           Upload multiple PDFs
@@ -230,8 +232,8 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-            <div className="relative">
-              <div className="relative w-full aspect-square max-w-md mx-auto">
+            <div className="relative order-first lg:order-last">
+              <div className="relative w-full aspect-square max-w-xs sm:max-w-sm md:max-w-md mx-auto">
                 <Image
                   src="/banner.png"
                   alt="Shingul mascot"
@@ -248,10 +250,10 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-text mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-text mb-8 sm:mb-12">
             Everything you need to study smarter
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
@@ -271,16 +273,16 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-text mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-text mb-8 sm:mb-12">
             Choose your plan
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {pricingPlans.map((plan, index) => (
               <div
                 key={index}
-                className={`glass rounded-2xl p-8 relative ${
+                className={`glass rounded-2xl p-6 sm:p-8 relative ${
                   plan.popular
-                    ? "border-2 border-primary glow-primary scale-105"
+                    ? "border-2 border-primary glow-primary md:scale-105"
                     : ""
                 }`}
               >

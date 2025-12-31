@@ -31,13 +31,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
       <main className="w-full max-w-md">
-        <div className="glass rounded-2xl p-8 glow-primary">
-          <h1 className="mb-6 text-3xl font-bold text-text">
+        <div className="glass rounded-2xl p-6 sm:p-8 glow-primary">
+          <h1 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold text-text">
             Sign in to Shingul
           </h1>
-          <p className="mb-6 text-muted">
+          <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted">
             Enter your email address and we&apos;ll send you a magic link to
             sign in. Or continue as a guest to explore the app.
           </p>

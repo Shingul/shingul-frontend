@@ -84,24 +84,24 @@ export default function FlashcardDeckPage({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Link
               href={`/study-sets/${id}`}
-              className="text-muted hover:text-text transition-colors text-sm"
+              className="text-muted hover:text-text transition-colors text-xs sm:text-sm"
             >
               ← Back to Study Set
             </Link>
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted">
+              <span className="text-xs sm:text-sm text-muted">
                 Card {currentIndex + 1} of {flashcards.length}
               </span>
-              <span className="text-sm text-muted">
+              <span className="text-xs sm:text-sm text-muted">
                 {Math.round(progress)}%
               </span>
             </div>
@@ -122,18 +122,18 @@ export default function FlashcardDeckPage({
 
           {/* Navigation */}
           {!isComplete && (
-            <div className="mt-8 flex justify-between">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
               <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className="px-6 py-3 glass border border-muted/30 text-text rounded-xl font-semibold hover:bg-bg-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 sm:px-6 py-2 sm:py-3 glass border border-muted/30 text-text rounded-xl font-semibold hover:bg-bg-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Previous
               </button>
               <button
                 onClick={handleNext}
                 disabled={currentIndex === flashcards.length - 1}
-                className="px-6 py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Next
               </button>
@@ -142,25 +142,25 @@ export default function FlashcardDeckPage({
 
           {/* Completion Message */}
           {isComplete && (
-            <div className="mt-8 glass rounded-2xl p-8 text-center glow-primary">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold text-text mb-2">Great job!</h2>
-              <p className="text-muted mb-6">
+            <div className="mt-6 sm:mt-8 glass rounded-2xl p-6 sm:p-8 text-center glow-primary">
+              <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">🎉</div>
+              <h2 className="text-xl sm:text-2xl font-bold text-text mb-2">Great job!</h2>
+              <p className="text-sm sm:text-base text-muted mb-4 sm:mb-6">
                 You&apos;ve completed all flashcards in this deck.
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button
                   onClick={() => {
                     setCurrentIndex(0);
                     setCompleted(new Set());
                   }}
-                  className="px-6 py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base"
                 >
                   Study Again
                 </button>
                 <Link
                   href={`/study-sets/${id}`}
-                  className="px-6 py-3 glass border border-muted/30 text-text rounded-xl font-semibold hover:bg-bg-1 transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-3 glass border border-muted/30 text-text rounded-xl font-semibold hover:bg-bg-1 transition-colors text-sm sm:text-base text-center"
                 >
                   Back to Study Set
                 </Link>

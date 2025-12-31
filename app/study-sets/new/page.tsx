@@ -51,9 +51,9 @@ export default function CreateStudySetPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-text mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text mb-6 sm:mb-8">
             Create New Study Set
           </h1>
 
@@ -81,16 +81,20 @@ export default function CreateStudySetPage() {
               <label className="block text-sm font-semibold text-text mb-2">
                 Upload PDFs
               </label>
-              <div className="glass rounded-2xl p-12 border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
+              <div className="glass rounded-2xl p-6 sm:p-8 md:p-12 border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
                 <div className="text-center">
-                  <div className="text-6xl mb-4">📄</div>
-                  <p className="text-text font-semibold mb-2">
+                  <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">
+                    📄
+                  </div>
+                  <p className="text-text font-semibold mb-2 text-sm sm:text-base">
                     Drag & drop PDF files here
                   </p>
-                  <p className="text-muted text-sm mb-4">or</p>
+                  <p className="text-muted text-xs sm:text-sm mb-3 sm:mb-4">
+                    or
+                  </p>
                   <button
                     type="button"
-                    className="px-6 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors"
+                    className="px-4 sm:px-6 py-1.5 sm:py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors text-xs sm:text-sm"
                     disabled={uploadState !== "idle"}
                   >
                     Upload multiple PDFs
@@ -135,18 +139,18 @@ export default function CreateStudySetPage() {
               </div>
             )}
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 type="submit"
                 disabled={uploadState !== "idle" || !title.trim()}
-                className="px-8 py-4 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Create & Generate Flashcards
               </button>
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-8 py-4 glass border border-muted/30 text-text rounded-xl font-semibold hover:bg-bg-1 transition-colors"
+                className="px-6 sm:px-8 py-3 sm:py-4 glass border border-muted/30 text-text rounded-xl font-semibold hover:bg-bg-1 transition-colors text-sm sm:text-base"
                 disabled={uploadState !== "idle"}
               >
                 Cancel
