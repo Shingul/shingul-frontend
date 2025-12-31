@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Authentication
+
+This app uses AdonisJS session cookies for authentication. **Important**: CORS on the backend must allow credentials for `localhost:3000` for authentication to work properly.
+
 ## Getting Started
 
 First, run the development server:

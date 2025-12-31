@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-0: #070816;
+  --bg-1: #0B1230;
+  --primary: #6D5BFF;
+  --primary2: #2DE2FF;
+  --accent: #FF4FD8;
+  --text: #EAF0FF;
+  --muted: rgba(234, 240, 255, 0.7);
+  --background: var(--bg-0);
+  --foreground: var(--text);
 }
 
 @theme inline {
+  --color-bg-0: var(--bg-0);
+  --color-bg-1: var(--bg-1);
+  --color-primary: var(--primary);
+  --color-primary2: var(--primary2);
+  --color-accent: var(--accent);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg-0);
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(109, 91, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 79, 216, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(45, 226, 255, 0.1) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Subtle star field effect */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 40%, white, transparent),
+    radial-gradient(1px 1px at 33% 60%, white, transparent),
+    radial-gradient(1px 1px at 70% 80%, white, transparent);
+  background-repeat: repeat;
+  background-size: 200% 200%;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(11, 18, 48, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(234, 240, 255, 0.1);
+}
+
+/* Glow effects */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(109, 91, 255, 0.3);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px rgba(255, 79, 216, 0.3);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(45, 226, 255, 0.3);
 }
