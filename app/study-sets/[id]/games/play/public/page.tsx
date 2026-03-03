@@ -4,14 +4,11 @@ import { use, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { useGame, useGameAndQuestions } from "@/src/queries/games.queries";
-import { useQuiz } from "@/src/queries/quizzes.queries";
+import { useGameAndQuestions } from "@/src/queries/games.queries";
 import { useSubmitAnswer } from "@/src/queries/games.mutations";
 import { EmptyState } from "@/components/ui";
 import toast from "react-hot-toast";
-import { Quiz } from "@/src/types/api";
 import { useGameService } from "@/src/hooks/use-game-service";
-import { HiOutlineCheckCircle } from "react-icons/hi";
 
 const PARTICIPANT_TOKEN_KEY = (code: string) => `game:${code}:participantToken`;
 
@@ -100,9 +97,6 @@ export default function ParticipantPlayPage({
   }
 
   const currentQuestion = quiz?.[currentQuestionIndex];
-  console.log("quiz", quiz);
-  console.log("currentQuestion", currentQuestion);
-  // const hasSubmitted = submittedAnswers.has(currentQuestionIndex);
   const progress = ((currentQuestionIndex + 1) / (quiz?.length || 0)) * 100;
 
   if (!currentQuestion) {
@@ -142,20 +136,7 @@ export default function ParticipantPlayPage({
             />
           </div>
         </div>
-
-        {/* Kahoot-style Answer Options - Centered and fills remaining space */}
         <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
-          {isSubmitting ? (
-            <div className="text-center">
-              <div className="text-5xl sm:text-6xl mb-4 flex justify-center"><HiOutlineCheckCircle className="w-16 h-16 sm:w-20 sm:h-20 text-success" /></div>
-              <p className="text-lg sm:text-xl font-semibold text-text mb-2">
-                Answer Submitted!
-              </p>
-              <p className="text-sm text-text-muted">
-                Waiting for next question...
-              </p>
-            </div>
-          ) : (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl">
               {currentQuestion.choices.map((choice, index) => {
                 const colorConfig = OPTION_COLORS[index] || OPTION_COLORS[0];
@@ -168,7 +149,6 @@ export default function ParticipantPlayPage({
                 );
               })}
             </div>
-          )}
         </div>
       </main>
     </div>
