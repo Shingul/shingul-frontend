@@ -3,16 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { HiOutlineBookOpen, HiOutlineCog } from "react-icons/hi";
+import type { IconType } from "react-icons";
 
 interface NavItem {
   label: string;
   href: string;
-  icon: string;
+  icon: IconType;
 }
 
 const navItems: NavItem[] = [
-  { label: "Study Sets", href: "/dashboard", icon: "📚" },
-  { label: "Settings", href: "/settings", icon: "⚙️" },
+  { label: "Study Sets", href: "/dashboard", icon: HiOutlineBookOpen },
+  { label: "Settings", href: "/settings", icon: HiOutlineCog },
 ];
 
 export default function Sidebar() {
@@ -79,7 +81,7 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="space-y-1">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
@@ -88,14 +90,14 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                   isActive
-                    ? "bg-primary/20 text-primary glow-primary/50"
-                    : "text-muted hover:bg-bg-1 hover:text-text"
+                    ? "bg-primary/15 text-primary border border-primary/20"
+                    : "text-text-muted hover:bg-bg-1 hover:text-text"
                 }`}
               >
-                <span className="text-lg sm:text-xl">{item.icon}</span>
-                <span className="font-medium text-sm sm:text-base">
+                <item.icon className="w-5 h-5 shrink-0" />
+                <span className="font-medium text-sm">
                   {item.label}
                 </span>
               </Link>
@@ -106,4 +108,3 @@ export default function Sidebar() {
     </>
   );
 }
-

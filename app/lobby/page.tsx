@@ -1,0 +1,159 @@
+"use client";
+
+import { useSearchParams, useRouter } from "next/navigation";
+import Sidebar from "@/components/Sidebar";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useParticipants } from "@/src/queries/games.queries";
+import {
+  PageContainer,
+  Section,
+  Card,
+} from "@/components/ui";
+import Link from "next/link";
+import type { Player } from "@/src/types/api";
+import { HiOutlineUserGroup, HiOutlineClock } from "react-icons/hi";
+import { use, useEffect } from "react";
+import { useGameService } from "@/src/hooks/use-game-service";
+
+export default function ParticipantLobbyPage({
+  params,
+}: {
+  params: Promise<{ id: string; gameId: string }>;
+}) {
+  const { id: studySetId } = use(params);
+  const searchParams = useSearchParams();
+  const gameId = searchParams.get("gameId");
+  // const studySetId = searchParams.get("studySetId");
+  // console.log("gameId", gameId);
+  // console.log("studySetId", studySetId);
+
+  const { data: game, isLoading: isLoadingParticipants } = useParticipants(gameId || "");
+  const participants = game?.players || [];
+  const router = useRouter();
+  useGameService.participantJoined(gameId || "", "participant");
+  useGameService.gameSessionTransmit(gameId || ""); 
+
+  useEffect(() => {
+    if (!gameId) return;
+    if (game?.status === "live") {
+      router.replace(`/study-sets/${studySetId}/games/play/public?gameId=${gameId}`);
+    }
+  }, [gameId, studySetId, router, game?.status]);
+
+  if (isLoadingParticipants) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 lg:ml-0">
+          <div className="flex justify-center items-center py-20">
+            <LoadingSpinner size="lg" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar />
+      <main className="flex-1 lg:ml-0 flex flex-col overflow-hidden">
+        <PageContainer className="flex flex-col h-full overflow-hidden">
+          {/* Fixed Header Section */}
+          <div className="shrink-0">
+            <div className="mb-2">
+              <Link
+                href={`/study-sets/${studySetId}`}
+                className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors inline-flex items-center gap-1.5"
+              >
+                <svg
+                  className="w-3 h-3 sm:w-4 sm:h-4"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Study Set
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text">Game Lobby</h1>
+            </div>
+          </div>
+
+          {/* Participants Section - Optimized to show 10-20 players without scrolling */}
+          <div className="flex-1 flex flex-col min-h-0">
+            <Section className="flex-1 flex flex-col min-h-0">
+              <div className="flex items-center justify-between mb-3 shrink-0">
+                <h2 className="text-xl font-bold text-text">
+                  Participants ({participants.length})
+                </h2>
+              </div>
+
+              {participants.length === 0 ? (
+                <Card className="text-center p-8 shrink-0">
+                  <div className="text-4xl mb-3 flex justify-center"><HiOutlineUserGroup className="w-12 h-12 text-primary" /></div>
+                  <p className="text-base text-text mb-1 font-semibold">
+                    No participants yet
+                  </p>
+                  <p className="text-sm text-text-muted">
+                    Share the game code to invite players
+                  </p>
+                </Card>
+              ) : (
+                <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 auto-rows-max">
+                  {participants.map((player: Player) => (
+                    <Card
+                      key={player.id}
+                      className="p-3 hover:border-primary/30 transition-all"
+                    >
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-linear-to-r from-primary to-primary2 flex items-center justify-center text-white font-bold text-lg sm:text-xl mb-2 shadow-md">
+                          {player.nickname[0].toUpperCase()}
+                        </div>
+                        <div className="w-full">
+                          <div className="flex items-center justify-center gap-1.5 mb-1 flex-wrap">
+                            <span className="font-semibold text-text text-xs sm:text-sm truncate max-w-full">
+                              {player.nickname}
+                            </span>
+                            {player.isHost && (
+                              <span className="px-1.5 py-0.5 bg-primary/15 text-primary rounded text-[10px] font-semibold shrink-0 border border-primary/20">
+                                Host
+                              </span>
+                            )}
+                          </div>
+                          {game?.status !== "lobby" && (
+                            <p className="text-xs text-text-muted">
+                              Score: <span className="font-semibold text-text">{player.score}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            {/* Fixed Footer Section */}
+            {game?.status === "lobby" && (
+              <Card className="text-center p-4 bg-primary/5 border-primary/20 shrink-0 mt-3">
+                <div className="text-3xl mb-2 flex justify-center"><HiOutlineClock className="w-10 h-10 text-primary" /></div>
+                <p className="text-base text-text mb-1 font-semibold">
+                  Waiting for host to start
+                </p>
+                <p className="text-xs text-text-muted">
+                  Code: <span className="font-mono font-semibold text-primary">{game.code}</span>
+                </p>
+              </Card>
+            )}
+          </div>
+        </PageContainer>
+      </main>
+    </div>
+  );
+}

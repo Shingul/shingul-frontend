@@ -1,32 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { useSendMagicLink } from "@/src/queries/auth.mutations";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState("");
   const router = useRouter();
+  const sendMagicLink = useSendMagicLink();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setMessage("");
 
     try {
-      await apiFetch("/auth/email/start", {
-        method: "POST",
-        data: { email },
-      });
-      setMessage("Check your email (or backend logs) for the sign-in link.");
+      await sendMagicLink.mutateAsync(email);
+      toast.success("Check your email (or backend logs) for the sign-in link.");
     } catch (error: unknown) {
       console.error("Login error:", error);
       // Still show success message even on error (security best practice)
-      setMessage("Check your email (or backend logs) for the sign-in link.");
-    } finally {
-      setIsSubmitting(false);
+      toast.success("Check your email (or backend logs) for the sign-in link.");
     }
   };
 
@@ -56,30 +49,18 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isSubmitting}
+                disabled={sendMagicLink.isPending}
                 className="w-full glass rounded-xl px-4 py-3 text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="you@example.com"
               />
             </div>
 
-            {message && (
-              <div
-                className={`rounded-xl p-3 text-sm ${
-                  message.includes("Check your email")
-                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                    : "bg-red-500/20 text-red-400 border border-red-500/30"
-                }`}
-              >
-                {message}
-              </div>
-            )}
-
             <button
               type="submit"
-              disabled={isSubmitting || !email}
+              disabled={sendMagicLink.isPending || !email}
               className="w-full px-6 py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Sending..." : "Send magic link"}
+              {sendMagicLink.isPending ? "Sending..." : "Send magic link"}
             </button>
           </form>
 

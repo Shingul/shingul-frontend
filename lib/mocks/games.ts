@@ -97,3 +97,58 @@ export function getGamesByStudySetId(studySetId: string): Game[] {
   return mockGames.filter((game) => game.studySetId === studySetId);
 }
 
+/**
+ * Generate a random 6-character uppercase alphanumeric game code
+ */
+export function generateGameCode(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
+ * Check if a game code is unique (for mock purposes)
+ */
+function isCodeUnique(code: string): boolean {
+  return !mockGames.some((game) => game.code === code);
+}
+
+/**
+ * Create a new game with auto-generated code
+ * Mock implementation - will be replaced with real API
+ */
+export function createGame(studySetId: string, quizId: string): Game {
+  // Generate unique code
+  let code = generateGameCode();
+  while (!isCodeUnique(code)) {
+    code = generateGameCode();
+  }
+
+  // Generate unique game ID
+  const gameId = `game${Date.now()}`;
+
+  // Create game object
+  const newGame: Game = {
+    id: gameId,
+    code,
+    studySetId,
+    status: "waiting",
+    players: [
+      {
+        id: "p-host",
+        nickname: "Host",
+        score: 0,
+        isHost: true,
+      },
+    ],
+    createdAt: new Date().toISOString(),
+  };
+
+  // Add to mock games array
+  mockGames.push(newGame);
+
+  return newGame;
+}

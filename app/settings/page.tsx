@@ -1,49 +1,25 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
-
-interface User {
-  email: string;
-}
-
-interface AuthMeResponse {
-  user: User | null;
-}
-
-async function fetchUser(): Promise<User | null> {
-  try {
-    const response = await apiFetch<AuthMeResponse>("/auth/me");
-    return response.data.user;
-  } catch {
-    return null;
-  }
-}
-
-async function logout(): Promise<void> {
-  await apiFetch("/auth/logout", {
-    method: "POST",
-  });
-}
+import toast from "react-hot-toast";
+import { useAuthUser } from "@/src/queries/auth.queries";
+import { useSignOut } from "@/src/queries/auth.mutations";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: fetchUser,
-    retry: false,
-  });
+  const { data: user } = useAuthUser();
+  const signOutMutation = useSignOut();
 
-  const logoutMutation = useMutation({
-    mutationFn: logout,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+  const handleSignOut = async () => {
+    try {
+      await signOutMutation.mutateAsync();
+      toast.success("Signed out successfully");
       router.push("/");
-    },
-  });
+    } catch {
+      // Error toast is handled by the mutation hook
+    }
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -68,11 +44,11 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <button
-                    onClick={() => logoutMutation.mutate()}
-                    disabled={logoutMutation.isPending}
+                    onClick={handleSignOut}
+                    disabled={signOutMutation.isPending}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-red-500/20 text-red-400 rounded-xl font-semibold hover:bg-red-500/30 transition-colors disabled:opacity-50 text-sm sm:text-base"
                   >
-                    {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                    {signOutMutation.isPending ? "Logging out..." : "Logout"}
                   </button>
                 </div>
               ) : (
@@ -82,7 +58,7 @@ export default function SettingsPage() {
                   </p>
                   <button
                     onClick={() => router.push("/login")}
-                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base"
                   >
                     Sign in
                   </button>

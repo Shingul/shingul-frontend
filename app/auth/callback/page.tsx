@@ -3,25 +3,8 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
-
-interface User {
-  email: string;
-}
-
-interface AuthMeResponse {
-  user: User | null;
-}
-
-async function fetchUser(): Promise<User | null> {
-  try {
-    const response = await apiFetch<AuthMeResponse>("/auth/me");
-    return response.data.user;
-  } catch (error) {
-    console.error("Failed to fetch user:", error);
-    return null;
-  }
-}
+import { getCurrentUser } from "@/src/api/auth.api";
+import { qk } from "@/src/queries/keys";
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -35,11 +18,11 @@ function AuthCallbackContent() {
 
     if (status === "ok") {
       // Fetch user data to verify authentication
-      fetchUser()
+      getCurrentUser()
         .then((user) => {
           if (user) {
             // Update React Query cache
-            queryClient.setQueryData(["user"], user);
+            queryClient.setQueryData(qk.auth.me, user);
             // Redirect to home
             router.push("/");
           } else {
@@ -103,7 +86,7 @@ function AuthCallbackContent() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={() => router.push("/login")}
-                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base"
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary text-sm sm:text-base"
                 >
                   Back to login
                 </button>

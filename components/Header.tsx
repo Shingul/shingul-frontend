@@ -3,34 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
-
-interface User {
-  email: string;
-}
-
-interface AuthMeResponse {
-  user: User | null;
-}
-
-async function fetchUser(): Promise<User | null> {
-  try {
-    const response = await apiFetch<AuthMeResponse>("/auth/me");
-    return response.data.user;
-  } catch {
-    // Guest mode - return null
-    return null;
-  }
-}
+import { useAuthUser } from "@/src/queries/auth.queries";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: fetchUser,
-    retry: false,
-  });
+  const { data: user } = useAuthUser();
 
   return (
     <header className="glass border-b border-muted/20 sticky top-0 z-50">
@@ -70,7 +47,7 @@ export default function Header() {
 
           {/* Desktop User Actions */}
           <div className="hidden md:flex items-center gap-4">
-            {user ? (
+            {user && !user.isGuest ? (
               <>
                 <Link
                   href="/settings"

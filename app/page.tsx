@@ -4,68 +4,58 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import CreateStudySetForm from "@/components/CreateStudySetForm";
+import { getGameByCode } from "@/src/api/games.api";
+import toast from "react-hot-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
-
-type UploadState = "idle" | "uploading" | "processing" | "error";
+import {
+  HiOutlineDocumentText,
+  HiOutlineCpuChip,
+  HiOutlineClipboardDocumentList,
+  HiOutlinePlay,
+  HiOutlineCheck,
+} from "react-icons/hi2";
 
 export default function LandingPage() {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [gameCode, setGameCode] = useState("");
+  const [isJoiningGame, setIsJoiningGame] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleJoinGame = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!gameCode.trim()) {
+      toast.error("Please enter a game code");
+      return;
+    }
 
-    setUploadState("uploading");
-    setUploadProgress(0);
-    setError(null);
-
-    // Simulate upload progress
-    const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
-    // Simulate upload delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    clearInterval(progressInterval);
-    setUploadProgress(100);
-    setUploadState("processing");
-
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Simulate success - redirect to new study set
-    const newId = Date.now().toString();
-    router.push(`/study-sets/${newId}`);
+    setIsJoiningGame(true);
+    try {
+      const game = await getGameByCode(gameCode.trim().toUpperCase());
+      router.push(`/study-sets/${game.studySetId}/games/${game.id}`);
+    } catch {
+      toast.error("Game not found. Please check the code and try again.");
+      setIsJoiningGame(false);
+    }
   };
+
   const features = [
     {
-      icon: "📄",
+      icon: HiOutlineDocumentText,
       title: "Upload PDFs",
       description: "Drag and drop your study materials",
     },
     {
-      icon: "🤖",
+      icon: HiOutlineCpuChip,
       title: "AI Flashcards",
       description: "Automatically generate flashcards from your notes",
     },
     {
-      icon: "📝",
+      icon: HiOutlineClipboardDocumentList,
       title: "AI Quizzes",
       description: "Test your knowledge with AI-generated quizzes",
     },
     {
-      icon: "🎮",
+      icon: HiOutlinePlay,
       title: "Live Quiz Games",
       description: "Compete with friends in real-time",
     },
@@ -111,126 +101,14 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text mb-4 sm:mb-6 leading-tight">
-                Turn your PDFs into{" "}
+                A calm place to study and{" "}
                 <span className="bg-linear-to-r from-primary2 via-primary to-accent bg-clip-text text-transparent">
-                  flashcards & quizzes
+                  have fun with friends
                 </span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-muted mb-6 sm:mb-8">
                 Upload notes. Study smarter. No signup required.
               </p>
-
-              {/* Study Set Creation Form */}
-              <div className="glass rounded-2xl p-4 sm:p-6 md:p-8 glow-primary mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-text mb-4 sm:mb-6">
-                  Create Your Study Set
-                </h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-semibold text-text mb-2"
-                    >
-                      Study Set Title
-                    </label>
-                    <input
-                      id="title"
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="e.g., Introduction to Astronomy"
-                      className="w-full px-4 py-3 glass rounded-xl text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary"
-                      required
-                      disabled={uploadState !== "idle"}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-text mb-2">
-                      Upload PDFs
-                    </label>
-                    <div className="glass rounded-xl p-4 sm:p-6 md:p-8 border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
-                      <div className="text-center">
-                        <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">
-                          📄
-                        </div>
-                        <p className="text-text font-semibold mb-2 text-xs sm:text-sm">
-                          Drag & drop PDF files here
-                        </p>
-                        <p className="text-muted text-xs mb-2 sm:mb-3">or</p>
-                        <button
-                          type="button"
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors text-xs sm:text-sm"
-                          disabled={uploadState !== "idle"}
-                        >
-                          Upload multiple PDFs
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {uploadState === "uploading" && (
-                    <div className="glass rounded-xl p-4">
-                      <div className="flex items-center gap-4 mb-2">
-                        <LoadingSpinner size="sm" />
-                        <span className="text-text text-sm">Uploading...</span>
-                      </div>
-                      <div className="w-full bg-bg-1 rounded-full h-2">
-                        <div
-                          className="bg-linear-to-r from-primary to-primary2 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${uploadProgress}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-muted mt-2">
-                        {uploadProgress}%
-                      </p>
-                    </div>
-                  )}
-
-                  {uploadState === "processing" && (
-                    <div className="glass rounded-xl p-4">
-                      <div className="flex items-center gap-4">
-                        <LoadingSpinner size="sm" />
-                        <div>
-                          <p className="text-text font-semibold text-sm">
-                            Processing...
-                          </p>
-                          <p className="text-xs text-muted">
-                            Extracting text and generating content
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className="glass rounded-xl p-4 bg-red-500/20 border border-red-500/50">
-                      <p className="text-red-400 text-sm">{error}</p>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={uploadState !== "idle" || !title.trim()}
-                    className="w-full px-6 py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {uploadState === "idle"
-                      ? "Create & Generate Flashcards"
-                      : uploadState === "uploading"
-                        ? "Uploading..."
-                        : "Processing..."}
-                  </button>
-                </form>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <Link
-                  href="/login"
-                  className="text-sm text-muted hover:text-text transition-colors"
-                >
-                  Already have an account? Sign in
-                </Link>
-              </div>
             </div>
             <div className="relative order-first lg:order-last">
               <div className="relative w-full aspect-square max-w-xs sm:max-w-sm md:max-w-md mx-auto">
@@ -244,6 +122,68 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1 -mt-25">
+              <CreateStudySetForm wrapperClassName="" />
+            </div>
+            {/* <div className="flex items-center justify-center md:px-4">
+              <span className="text-muted font-semibold text-sm md:text-base">
+                OR
+              </span>
+            </div>
+            <div className="flex-1">
+              <div className="glass rounded-2xl p-3 sm:p-4 md:p-5 glow-primary">
+                <h2 className="text-lg sm:text-xl font-bold text-text mb-3">
+                  Join a Game
+                </h2>
+                <form onSubmit={handleJoinGame} className="space-y-3">
+                  <div>
+                    <label
+                      htmlFor="game-code"
+                      className="block text-xs sm:text-sm font-semibold text-text mb-1"
+                    >
+                      Enter Game Code
+                    </label>
+                    <input
+                      id="game-code"
+                      type="text"
+                      value={gameCode}
+                      onChange={(e) =>
+                        setGameCode(e.target.value.toUpperCase())
+                      }
+                      placeholder="e.g., SHINGUL"
+                      maxLength={6}
+                      className="w-full px-3 py-2 glass rounded-lg text-sm text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary uppercase"
+                      disabled={isJoiningGame}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={!gameCode.trim() || isJoiningGame}
+                    className="w-full px-4 py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                  >
+                    {isJoiningGame ? (
+                      <>
+                        <LoadingSpinner size="sm" />
+                        Joining...
+                      </>
+                    ) : (
+                      "Join Game"
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div> */}
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/login"
+              className="text-sm text-muted hover:text-text transition-colors"
+            >
+              Already have an account? Sign in
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -254,18 +194,21 @@ export default function LandingPage() {
             Everything you need to study smarter
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="glass rounded-2xl p-6 hover:scale-105 transition-transform glow-primary/50"
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold text-text mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-muted">{feature.description}</p>
-              </div>
-            ))}
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={index}
+                  className="glass rounded-2xl p-6 hover:scale-105 transition-transform glow-primary/50"
+                >
+                  <div className="text-4xl mb-4 flex justify-center"><Icon className="w-10 h-10 text-primary" /></div>
+                  <h3 className="text-xl font-bold text-text mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted">{feature.description}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -306,7 +249,7 @@ export default function LandingPage() {
                       key={fIndex}
                       className="flex items-center gap-2 text-muted"
                     >
-                      <span className="text-primary2">✓</span>
+                      <HiOutlineCheck className="w-5 h-5 text-primary2 shrink-0" />
                       {feature}
                     </li>
                   ))}
