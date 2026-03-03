@@ -4,18 +4,37 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useParticipants } from "@/src/queries/games.queries";
-import {
-  PageContainer,
-  Section,
-  Card,
-} from "@/components/ui";
+import { PageContainer, Section, Card } from "@/components/ui";
 import Link from "next/link";
 import type { Player } from "@/src/types/api";
 import { HiOutlineUserGroup, HiOutlineClock } from "react-icons/hi";
-import { use, useEffect } from "react";
+import { Suspense, use, useEffect } from "react";
 import { useGameService } from "@/src/hooks/use-game-service";
 
 export default function ParticipantLobbyPage({
+  params,
+}: {
+  params: Promise<{ id: string; gameId: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <main className="flex-1 lg:ml-0">
+            <div className="flex justify-center items-center py-20">
+              <LoadingSpinner size="lg" />
+            </div>
+          </main>
+        </div>
+      }
+    >
+      <ParticipantLobbyContent params={params} />
+    </Suspense>
+  );
+}
+
+function ParticipantLobbyContent({
   params,
 }: {
   params: Promise<{ id: string; gameId: string }>;
@@ -27,7 +46,10 @@ export default function ParticipantLobbyPage({
   // console.log("gameId", gameId);
   // console.log("studySetId", studySetId);
 
-  const { data: game, isLoading: isLoadingParticipants } = useParticipants(gameId || "");
+  const { data: game, isLoading: isLoadingParticipants } = useParticipants(
+    gameId || "",
+  );
+  
   const participants = game?.players || [];
   const router = useRouter();
   useGameService.participantJoined(gameId || "", "participant");
@@ -39,19 +61,6 @@ export default function ParticipantLobbyPage({
       router.replace(`/study-sets/${studySetId}/games/play/public?gameId=${gameId}`);
     }
   }, [gameId, studySetId, router, game?.status]);
-
-  if (isLoadingParticipants) {
-    return (
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex-1 lg:ml-0">
-          <div className="flex justify-center items-center py-20">
-            <LoadingSpinner size="lg" />
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen overflow-hidden">

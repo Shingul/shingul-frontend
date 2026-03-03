@@ -14,9 +14,9 @@ import axios, {
   AxiosError,
 } from "axios";
 
-// const API_URL = "https://shingul-backend.onrender.com/api";
-const API_URL = "http://localhost:3333/api";
-
+const API_URL =
+  `${process.env.NEXT_PUBLIC_API_URL}/api` || "http://localhost:3333/api";
+// const API_URL = "http://localhost:3333/api";
 console.log("API_URL", API_URL);
 
 // Create axios instance with default config

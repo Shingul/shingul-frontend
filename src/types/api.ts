@@ -72,6 +72,7 @@ export interface QuizQuestion {
   id: string;
   question: string;
   choices: string[];
+  options: string[];
   correctAnswer: number;
   explanation?: string;
 }
@@ -104,7 +105,7 @@ export interface Player {
   avatar?: string;
   score: number;
   isHost: boolean;
-  status:  'active' | 'left' | 'kicked';
+  status: "active" | "left" | "kicked";
 }
 
 export interface Document {
@@ -253,39 +254,39 @@ export interface KickoutPlayerResponse {
   message: string;
 }
 
-  // useEffect(() => {
-  //   const checkToken = async () => {
-  //     if (!game) return;
+// useEffect(() => {
+//   const checkToken = async () => {
+//     if (!game) return;
 
-  //     const token = localStorage.getItem(PARTICIPANT_TOKEN_KEY(game.code));
+//     const token = localStorage.getItem(PARTICIPANT_TOKEN_KEY(game.code));
 
-  //     if (!token) {
-  //       // No token, redirect to join page
-  //       router.push(`/study-sets/${id}/games/join/${game.code}`);
-  //       return;
-  //     }
+//     if (!token) {
+//       // No token, redirect to join page
+//       router.push(`/study-sets/${id}/games/join/${game.code}`);
+//       return;
+//     }
 
-  //     try {
-  //       const response = await resumeRoom(game.code, token);
+//     try {
+//       const response = await resumeRoom(game.code, token);
 
-  //       // If game is active, route to play page
-  //       if (response.status === "active") {
-  //         router.push(
-  //           `/study-sets/${response.studySetId}/games/${response.gameId}/play`
-  //         );
-  //         return;
-  //       }
+//       // If game is active, route to play page
+//       if (response.status === "active") {
+//         router.push(
+//           `/study-sets/${response.studySetId}/games/${response.gameId}/play`
+//         );
+//         return;
+//       }
 
-  //       // Game is waiting, stay on lobby
-  //       setIsResuming(false);
-  //     } catch {
-  //       // Token is invalid, redirect to join
-  //       localStorage.removeItem(PARTICIPANT_TOKEN_KEY(game.code));
-  //       router.push(`/study-sets/${id}/games/join/${game.code}`);
-  //     }
-  //   };
+//       // Game is waiting, stay on lobby
+//       setIsResuming(false);
+//     } catch {
+//       // Token is invalid, redirect to join
+//       localStorage.removeItem(PARTICIPANT_TOKEN_KEY(game.code));
+//       router.push(`/study-sets/${id}/games/join/${game.code}`);
+//     }
+//   };
 
-  //   if (game) {
-  //     checkToken();
-  //   }
-  // }, [game, id, router]);
+//   if (game) {
+//     checkToken();
+//   }
+// }, [game, id, router]);
