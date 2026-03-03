@@ -3,8 +3,8 @@ import toast from "react-hot-toast";
 
 export const useJoinCode = (code: string) => {
   const [isJoining, setIsJoining] = useState(false);
-  const url = 'http://localhost:3000';
-//   const ip = `${process.env.NEXT_FRONTEND_PUBLIC_IP}`;
+  const url = window.location.origin;
+  //   const ip = `${process.env.NEXT_FRONTEND_PUBLIC_IP}`;
   const joinUrl = `${url}/join?code=${code}`;
 
   const handleCopyCode = async () => {
