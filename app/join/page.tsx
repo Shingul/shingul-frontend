@@ -10,6 +10,7 @@ import { useJoinRoom } from "@/src/queries/games.mutations";
 import { getApiErrorMessage } from "@/src/lib/apiError";
 
 const PARTICIPANT_TOKEN_KEY = (code: string) => `game:${code}:participantToken`;
+const PARTICIPANT_ID_KEY = (code: string) => `game:${code}:participantId`;
 
 export default function JoinGamePage({
   params,
@@ -80,10 +81,14 @@ function JoinGameContent({ code }: { code: string }) {
 
   const handleJoin = async (gameCode: string, nickname: string) => {
     const response = await joinRoom({ code: gameCode, nickname: nickname });
-    // localStorage.setItem(
-    //   PARTICIPANT_TOKEN_KEY(gameCode),
-    //   response.participantToken
-    // );
+    localStorage.setItem(
+      PARTICIPANT_TOKEN_KEY(gameCode),
+      response.participantToken
+    );
+    localStorage.setItem(
+      PARTICIPANT_ID_KEY(gameCode),
+      response.participantId
+    );
 
     if(response.redirect){
       router.push(response.redirectUrl || "");

@@ -209,6 +209,7 @@ export interface SubmitAnswerPayload {
   questionId: string;
   choice: string;
   timeUsedSeconds?: number;
+  participantId?: string;
 }
 
 export interface SubmitAnswerResponse {
@@ -220,6 +221,11 @@ export interface SubmitAnswerResponse {
 }
 
 export interface StartGameResponse {
+  message: string;
+  game: Game;
+}
+
+export interface EndGameResponse {
   message: string;
   game: Game;
 }

@@ -8,7 +8,7 @@ import { useGame } from "@/src/queries/games.queries";
 // import StartGameModal from "@/components/modals/StartGameModal";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { useStartGame, useKickoutPlayer } from "@/src/queries/games.mutations";
+import { useStartGame, useEndGame, useKickoutPlayer } from "@/src/queries/games.mutations";
 import { getApiErrorMessage } from "@/src/lib/apiError";
 import { useJoinCode } from "@/src/hooks/join-code";
 import { useGameService } from "@/src/hooks/use-game-service";
@@ -26,6 +26,7 @@ export default function GameLobbyPage({
   const { id, gameId } = use(params);
   const { data: game, isLoading } = useGame(gameId);
   const { mutate: startGame, isPending: isStarting } = useStartGame();
+  const { mutate: endGame, isPending: isEnding } = useEndGame();
   const { mutate: kickoutPlayer, isPending: isKickingPlayer } = useKickoutPlayer();
   const [showPreparationModal, setShowPreparationModal] = useState(false);
   const router = useRouter();
@@ -63,7 +64,31 @@ export default function GameLobbyPage({
     }
   };
 
-  if (isLoading || isStarting) {
+  const handleEndGame = () => {
+    if (!game || !isHost) return;
+    const confirmed = window.confirm(
+      "Ending the game will stop it for all participants and show final results. Are you sure you want to end the game?"
+    );
+    if (!confirmed) return;
+
+    endGame(gameId, {
+      onSuccess: () => {
+        toast.success("Game ended.");
+      },
+      onError: (error) => {
+        toast.error(getApiErrorMessage(error));
+      },
+    });
+  };
+// TYRAN Purple colors
+  // const TYRAN_PURPLE = "#7c6fff";
+  // const TYRAN_PURPLE_DARK = "#6b5ce6";
+  // const TYRAN_PURPLE_LIGHT = "#9a8fff";
+  // const TYRAN_PURPLE_LIGHTER = "#8a7fff";
+  // const TYRAN_PURPLE_LIGHTEST = "#6dd9e8";
+  // const TYRAN_PURPLE_LIGHTEST_DARK = "#5dc9d8";
+  // const TYRAN_PURPLE_LIGHTEST_LIGHTER = "#4dd0e1";
+  if (isLoading || isStarting || isEnding) {
     return (
       <div className="flex min-h-screen">
         <Sidebar />
@@ -126,14 +151,24 @@ export default function GameLobbyPage({
             </div>
 
             {/* Host Controls */}
-            {isHost && game.status === "lobby" && (
+            {isHost && (
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-3 sm:mb-4">
-                <button
-                  onClick={handleStartGame}
-                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary text-xs sm:text-sm"
-                >
-                  Start Game
-                </button>
+                {game.status === "lobby" && (
+                  <button
+                    onClick={handleStartGame}
+                    className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary text-xs sm:text-sm"
+                  >
+                    Start Game
+                  </button>
+                )}
+                {game.status === "live" && (
+                  <button
+                    onClick={handleEndGame}
+                    className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-error/90 text-white rounded-lg font-semibold hover:bg-error transition-colors text-xs sm:text-sm"
+                  >
+                    End Game
+                  </button>
+                )}
                 <button className="px-3 sm:px-4 py-2 sm:py-2.5 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-xs sm:text-sm">
                   Settings
                 </button>

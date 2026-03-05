@@ -1,11 +1,11 @@
-import { useEffect, useMemo } from 'react'
-import { getTransmit } from '../lib/transmit'
+import { useEffect, useMemo } from "react";
+import { getTransmit } from "../lib/transmit";
 
 type UseTransmitSubscriptionParams<TMessage> = {
-  enabled?: boolean
-  channel: string
-  onMessage: (message: TMessage) => void
-}
+  enabled?: boolean;
+  channel: string;
+  onMessage: (message: TMessage) => void;
+};
 
 export function useTransmit<TMessage>({
   enabled = true,
@@ -14,31 +14,32 @@ export function useTransmit<TMessage>({
 }: UseTransmitSubscriptionParams<TMessage>) {
   const transmit = useMemo(() => getTransmit(), []);
   useEffect(() => {
-    if (!enabled) return
-    if (!transmit) return
-    if (!channel) return
+    if (!enabled) return;
+    if (!transmit) return;
+    if (!channel) return;
 
-    let mounted = true
-    const subscription = transmit.subscription(channel)
+    let mounted = true;
+    const subscription = transmit.subscription(channel);
+    console.log("Subscribing to channel", channel);
 
     const setup = async () => {
       try {
-        await subscription.create()
-        if (!mounted) return
+        await subscription.create();
+        if (!mounted) return;
         subscription.onMessage((msg: TMessage) => {
-          if (!mounted) return
-          onMessage(msg)
-        })
+          if (!mounted) return;
+          onMessage(msg);
+        });
       } catch (err) {
-        console.error('Transmit subscription failed', { channel, err })
+        console.error("Transmit subscription failed", { channel, err });
       }
-    }
+    };
 
-    setup()
+    setup();
 
     return () => {
-      mounted = false
-      subscription.delete().catch(() => {})
-    }
-  }, [enabled, transmit, channel, onMessage])
+      mounted = false;
+      subscription.delete().catch(() => {});
+    };
+  }, [enabled, transmit, channel, onMessage]);
 }

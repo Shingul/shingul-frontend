@@ -4,7 +4,14 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { createGame, joinRoom, startGame, submitAnswer, kickoutPlayer } from "@/src/api/games.api";
+import {
+  createGame,
+  joinRoom,
+  startGame,
+  endGame,
+  submitAnswer,
+  kickoutPlayer,
+} from "@/src/api/games.api";
 import { qk } from "./keys";
 import { getApiErrorMessage } from "@/src/lib/apiError";
 import type {
@@ -13,6 +20,7 @@ import type {
   JoinRoomPayload,
   JoinRoomResponse,
   StartGameResponse,
+  EndGameResponse,
   SubmitAnswerPayload,
   SubmitAnswerResponse,
   KickoutPlayerPayload,
@@ -27,7 +35,11 @@ import { AxiosError } from "axios";
 export function useCreateGame() {
   const queryClient = useQueryClient();
 
-  return useMutation<CreateGameResponse, AxiosError<{ message: string; errors?: { message: string }[] }>, CreateGamePayload>({
+  return useMutation<
+    CreateGameResponse,
+    AxiosError<{ message: string; errors?: { message: string }[] }>,
+    CreateGamePayload
+  >({
     mutationFn: createGame,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
@@ -44,7 +56,11 @@ export function useCreateGame() {
 export function useJoinRoom() {
   const queryClient = useQueryClient();
 
-  return useMutation<JoinRoomResponse, AxiosError<{ message: string; errors?: { message: string }[] }>, JoinRoomPayload>({
+  return useMutation<
+    JoinRoomResponse,
+    AxiosError<{ message: string; errors?: { message: string }[] }>,
+    JoinRoomPayload
+  >({
     mutationFn: joinRoom,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
@@ -60,14 +76,40 @@ export function useJoinRoom() {
 
 export function useStartGame() {
   const queryClient = useQueryClient();
-  return useMutation<StartGameResponse, AxiosError<{ message: string; errors?: { message: string }[] }>, string>({
+  return useMutation<
+    StartGameResponse,
+    AxiosError<{ message: string; errors?: { message: string }[] }>,
+    string
+  >({
     mutationFn: startGame,
     onSuccess: (data) => {
       toast.success(data.message);
       queryClient.invalidateQueries({
         queryKey: qk.games.detail(data.game.id),
       });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
 
+export function useEndGame() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    EndGameResponse,
+    AxiosError<{ message: string; errors?: { message: string }[] }>,
+    string
+  >({
+    mutationFn: endGame,
+    onSuccess: (data) => {
+      toast.success(data.message || "Game ended.");
+      queryClient.invalidateQueries({
+        queryKey: qk.games.detail(data.game.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: qk.games.participants(data.game.id),
+      });
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));
@@ -76,7 +118,11 @@ export function useStartGame() {
 }
 
 export function useSubmitAnswer() {
-  return useMutation<SubmitAnswerResponse, AxiosError<{ message: string; errors?: { message: string }[] }>, SubmitAnswerPayload>({
+  return useMutation<
+    SubmitAnswerResponse,
+    AxiosError<{ message: string; errors?: { message: string }[] }>,
+    SubmitAnswerPayload
+  >({
     mutationFn: submitAnswer,
     onSuccess: () => {
       toast.success("Answer submitted successfully!");
@@ -90,11 +136,15 @@ export function useSubmitAnswer() {
 export function useKickoutPlayer() {
   const queryClient = useQueryClient();
 
-  return useMutation<KickoutPlayerResponse, AxiosError<{ message: string; errors?: { message: string }[] }>, KickoutPlayerPayload>({
+  return useMutation<
+    KickoutPlayerResponse,
+    AxiosError<{ message: string; errors?: { message: string }[] }>,
+    KickoutPlayerPayload
+  >({
     mutationFn: kickoutPlayer,
     onSuccess: (data, variables) => {
       console.log("data", data);
-      console.log("variables", variables);  
+      console.log("variables", variables);
       // Invalidate game queries to refresh player list
       queryClient.invalidateQueries({
         queryKey: qk.games.detail(variables.gameSessionId),

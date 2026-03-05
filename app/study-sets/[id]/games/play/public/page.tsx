@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/ui";
 import toast from "react-hot-toast";
 import { useGameService } from "@/src/hooks/use-game-service";
 
-const PARTICIPANT_TOKEN_KEY = (code: string) => `game:${code}:participantToken`;
+const PARTICIPANT_ID_KEY = (code: string) => `game:${code}:participantId`;
 
 // Shingul branding colors for options
 const OPTION_COLORS = [
@@ -37,7 +37,22 @@ export default function ParticipantPlayPage({
   const quiz = gameAndQuestions?.questions;
   const currentQuestionIndex = game?.currentQuestionIndex ?? 0;
 
- useGameService.publicGameSession(gameId);
+  const [participantId, setParticipantId] = useState<string | null>(null);
+  console.log("gameID", gameId);
+
+  useGameService.publicGameSession(gameId);
+
+  useEffect(() => {
+    if (!game?.code) return;
+    try {
+      const storedId = localStorage.getItem(PARTICIPANT_ID_KEY(game.code));
+      if (storedId) {
+        setParticipantId(storedId);
+      }
+    } catch {
+      // ignore storage failures
+    }
+  }, [game?.code]);
   // Subscribe to game state changes
   useEffect(() => {
     if (!game) return;
@@ -77,6 +92,7 @@ export default function ParticipantPlayPage({
         questionId: quiz?.[currentQuestionIndex].id || "",
         choice,
         timeUsedSeconds,
+        participantId: participantId || undefined,
       });
       setSubmittedAnswers(new Set([...submittedAnswers, currentQuestionIndex]));
   };
