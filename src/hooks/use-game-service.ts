@@ -193,6 +193,7 @@ function usePublicGameSession(gameId: string) {
   useTransmit<GameSessionBroadcast>({
     channel: `game_session:${gameId}`,
     onMessage,
+    autoCleanup: false,
   });
 }
 export const useGameService = {

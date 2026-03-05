@@ -5,12 +5,14 @@ type UseTransmitSubscriptionParams<TMessage> = {
   enabled?: boolean;
   channel: string;
   onMessage: (message: TMessage) => void;
+  autoCleanup?: boolean;
 };
 
 export function useTransmit<TMessage>({
   enabled = true,
   channel,
   onMessage,
+  autoCleanup = true,
 }: UseTransmitSubscriptionParams<TMessage>) {
   const transmit = useMemo(() => getTransmit(), []);
   useEffect(() => {
@@ -39,7 +41,9 @@ export function useTransmit<TMessage>({
 
     return () => {
       mounted = false;
-      subscription.delete().catch(() => {});
+      if (autoCleanup) {
+        subscription.delete().catch(() => {});
+      }
     };
-  }, [enabled, transmit, channel, onMessage]);
+  }, [enabled, transmit, channel, onMessage, autoCleanup]);
 }
