@@ -13,8 +13,8 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { label: "Study Sets", href: "/dashboard", icon: "library_books" },
-  { label: "Quizzes", href: "/dashboard#quizzes", icon: "quiz" },
-  { label: "Recent Activity", href: "/dashboard#recent", icon: "history" },
+  // { label: "Quizzes", href: "/dashboard#quizzes", icon: "quiz" },
+  // { label: "Recent Activity", href: "/dashboard#recent", icon: "history" },
 ];
 
 const bottomNav: NavItem[] = [
