@@ -109,24 +109,19 @@ function JoinGameContent({ code }: { code: string }) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#F9F2E9]">
       <Sidebar />
-      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0">
-        <div className="max-w-md mx-auto flex flex-col justify-center min-h-full">
-          <div className="glass rounded-2xl p-6 sm:p-8 glow-primary">
-            <div className="text-center mb-6">
-              {/* <div className="relative w-full aspect-square max-w-xs sm:max-w-sm md:max-w-md mx-auto mb-4">
-                <Image
-                  src="/banner.png"
-                  alt="Shingul mascot"
-                  fill
-                  className="object-contain drop-shadow-2xl"
-                  priority
-                />
-              </div> */}
-              <h1 className="text-2xl sm:text-3xl font-bold text-text mb-2">
-                Join Game
+      <main className="flex-1 flex flex-col p-4 sm:p-6 md:p-8 lg:ml-0">
+        <div className="flex flex-col items-center justify-center p-6">
+          <div className="max-w-md w-full bg-white shadow-2xl shadow-[#66023C]/5 rounded-xl border border-[#66023C]/5 p-8 md:p-12">
+            <div className="text-center mb-10">
+              <h1 className="text-[#1E1E1E] text-3xl font-extrabold tracking-tight mb-3">
+                Join the Match
               </h1>
+              <p className="text-zinc-500 text-sm leading-relaxed">
+                Enter your credentials below to enter the lobby and prepare for
+                your next challenge.
+              </p>
             </div>
 
             <JoinGameForm
@@ -137,6 +132,11 @@ function JoinGameContent({ code }: { code: string }) {
             />
           </div>
         </div>
+        <footer className="w-full py-6 text-center shrink-0">
+          <p className="text-zinc-400 text-[10px] uppercase tracking-widest font-medium">
+            © Shingul • Join and host study games
+          </p>
+        </footer>
       </main>
     </div>
   );

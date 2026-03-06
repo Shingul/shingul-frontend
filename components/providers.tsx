@@ -26,32 +26,31 @@ export function Providers({ children }: { children: React.ReactNode }) {
         toastOptions={{
           duration: 4000,
           style: {
-            background: "rgba(11, 18, 48, 0.95)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(234, 240, 255, 0.1)",
-            color: "#EAF0FF",
+            background: "#F9F2E9",
+            border: "1px solid rgba(102, 2, 60, 0.12)",
+            color: "#1E1E1E",
             borderRadius: "12px",
             padding: "12px 16px",
-            boxShadow: "0 0 20px rgba(109, 91, 255, 0.3)",
+            boxShadow: "0 4px 20px rgba(102, 2, 60, 0.08)",
           },
           success: {
             iconTheme: {
-              primary: "#2DE2FF",
-              secondary: "#0B1230",
+              primary: "#66023C",
+              secondary: "#F9F2E9",
             },
             style: {
-              border: "1px solid rgba(45, 226, 255, 0.3)",
-              boxShadow: "0 0 20px rgba(45, 226, 255, 0.2)",
+              border: "1px solid rgba(102, 2, 60, 0.2)",
+              boxShadow: "0 4px 20px rgba(102, 2, 60, 0.12)",
             },
           },
           error: {
             iconTheme: {
-              primary: "#FF4FD8",
-              secondary: "#0B1230",
+              primary: "#B91C1C",
+              secondary: "#F9F2E9",
             },
             style: {
-              border: "1px solid rgba(255, 79, 216, 0.3)",
-              boxShadow: "0 0 20px rgba(255, 79, 216, 0.2)",
+              border: "1px solid rgba(185, 28, 28, 0.25)",
+              boxShadow: "0 4px 20px rgba(185, 28, 28, 0.1)",
             },
           },
         }}

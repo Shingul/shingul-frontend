@@ -33,75 +33,93 @@ export default function GenerateQuizModal({
 
   const handleSubmit = (formData: CreateQuizFormData) => {
     const payload = buildQuizPayload(studySetId, formData, description);
-
     createQuiz.mutate(payload, {
-      onSuccess: () => {
-        handleClose();
-      },
+      onSuccess: () => handleClose(),
     });
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-black/30 backdrop-blur-sm"
       onClick={handleClose}
     >
       <div
-        className="glass rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto glow-primary"
+        className="w-full max-w-[640px] bg-white rounded-xl shadow-sm overflow-hidden border border-[#E5DACE] max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-text">
-            Generate Quiz
-          </h2>
+        {/* Header */}
+        <header className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-[#E5DACE] shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#66023C]/10 flex items-center justify-center text-[#66023C]">
+              <span className="material-symbols-outlined text-2xl">quiz</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-[#1E1E1E]">
+                Generate Quiz
+              </h1>
+              <p className="text-xs text-[#1E1E1E]/60 uppercase tracking-widest font-semibold">
+                Shingul Studio
+              </p>
+            </div>
+          </div>
           <button
             onClick={handleClose}
             disabled={createQuiz.isPending}
-            className="p-2 glass rounded-lg text-muted hover:text-text hover:bg-bg-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Close modal"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#F9F2E9] transition-colors text-[#1E1E1E]/40 disabled:opacity-50"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-8">
+          <div className="space-y-2 mb-8">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Create New Quiz
+            </h2>
+            <p className="text-[#1E1E1E]/60 leading-relaxed max-w-md text-sm">
+              Select your source material and configure the quiz to test your
+              knowledge.
+            </p>
+          </div>
+
+          <CreateQuiz
+            studySetId={studySetId}
+            description={description}
+            documents={documents}
+            isLoading={createQuiz.isPending}
+            onSubmit={handleSubmit}
+            showSubmitButton={false}
+          />
+        </div>
+
+        {/* Footer */}
+        <footer className="px-6 sm:px-8 py-6 sm:py-8 bg-[#F9F2E9]/50 border-t border-[#E5DACE] shrink-0">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <p className="text-xs text-[#1E1E1E]/40 italic">
+              Generation usually takes less than 30 seconds.
+            </p>
+            <button
+              onClick={() => {
+                const form = document.querySelector(
+                  "form"
+                ) as HTMLFormElement | null;
+                form?.requestSubmit();
+              }}
+              disabled={createQuiz.isPending}
+              className="w-full sm:w-auto px-10 py-4 bg-[#66023C] text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-[#66023C]/20 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <CreateQuiz
-          studySetId={studySetId}
-          description={description}
-          documents={documents}
-          isLoading={createQuiz.isPending}
-          onSubmit={handleSubmit}
-          submitButtonText={
-            createQuiz.isPending ? (
-              <span className="flex items-center justify-center gap-2">
-                <LoadingSpinner size="sm" />
-                Generating...
-              </span>
-            ) : (
-              "Generate Quiz"
-            )
-          }
-        />
-
-        <div className="flex gap-3 pt-4 mt-6 border-t border-muted/20">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={createQuiz.isPending}
-            className="px-4 py-2.5 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Cancel
-          </button>
-        </div>
+              {createQuiz.isPending ? (
+                <span className="flex items-center justify-center gap-2">
+                  <LoadingSpinner size="sm" />
+                  Generating...
+                </span>
+              ) : (
+                "Generate Quiz"
+              )}
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
   );

@@ -12,13 +12,7 @@ import { useGameService } from "@/src/hooks/use-game-service";
 
 const PARTICIPANT_ID_KEY = (code: string) => `game:${code}:participantId`;
 
-// Shingul branding colors for options
-const OPTION_COLORS = [
-  { bg: "bg-[#7c6fff]", hover: "hover:bg-[#6b5ce6]", letter: "A" }, // Primary purple
-  { bg: "bg-[#4dd0e1]", hover: "hover:bg-[#3bc0d1]", letter: "B" }, // Accent cyan
-  { bg: "bg-[#9a8fff]", hover: "hover:bg-[#8a7fff]", letter: "C" }, // Primary light
-  { bg: "bg-[#6dd9e8]", hover: "hover:bg-[#5dc9d8]", letter: "D" }, // Accent light
-];
+const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 export default function ParticipantPlayPage({
   params,
@@ -99,10 +93,22 @@ export default function ParticipantPlayPage({
   const isDisabled = submittedAnswers.has(currentQuestionIndex) || isSubmitting || game?.status !== "live";
   console.log("submittedAnswers", submittedAnswers, isDisabled);
 
+  // Explicitly leave game session when navigating away from this page
+  // useEffect(() => {
+  //   return () => {
+  //     if (gameId) {
+  //       useGameService.leavePublicGameSession(gameId);
+  //     }
+  //   };
+  // }, [gameId]);
+
+  const currentQuestion = quiz?.[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / (quiz?.length || 0)) * 100;
+
   if (isLoadingGameAndQuestions) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar activeTab="Study Sets" />
         <main className="flex-1 lg:ml-0">
           <div className="flex justify-center items-center py-20">
             <LoadingSpinner size="lg" />
@@ -112,13 +118,10 @@ export default function ParticipantPlayPage({
     );
   }
 
-  const currentQuestion = quiz?.[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / (quiz?.length || 0)) * 100;
-
   if (!currentQuestion) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar activeTab="Study Sets" />
         <main className="flex-1 lg:ml-0">
           <EmptyState
             title="Question not found"
@@ -132,39 +135,52 @@ export default function ParticipantPlayPage({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+    <div className="flex h-screen overflow-hidden bg-[#F9F2E9] text-[#1E1E1E]">
+      <Sidebar activeTab="Study Sets" />
       <main className="flex-1 lg:ml-0 flex flex-col">
         {/* Progress Bar - Fixed at top */}
         <div className="shrink-0 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs sm:text-sm font-medium text-text">
+            <span className="text-xs sm:text-sm font-medium text-[#1E1E1E]">
               Question {currentQuestionIndex + 1} of {quiz.length}
             </span>
-            <span className="text-xs sm:text-sm text-text-muted">
+            <span className="text-xs sm:text-sm text-[#1E1E1E]/60">
               {Math.round(progress)}%
             </span>
           </div>
-          <div className="w-full bg-bg-1 rounded-full h-1.5 sm:h-2">
+          <div className="w-full bg-[#E5DACE] rounded-full h-1.5 sm:h-2">
             <div
-              className="bg-primary h-1.5 sm:h-2 rounded-full transition-all"
+              className="bg-[#66023C] h-1.5 sm:h-2 rounded-full transition-all"
               style={{ width: `${progress}%`, transitionDuration: "300ms" }}
             />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl">
-              {currentQuestion.choices.map((choice, index) => {
-                const colorConfig = OPTION_COLORS[index] || OPTION_COLORS[0];
-                return (
-                  <button key={choice} onClick={() => handleAnswerSelect(choice)} disabled={isDisabled} className={`${colorConfig.bg} ${colorConfig.hover} ${isDisabled ? "opacity-50 cursor-not-allowed" : ""} aspect-square rounded-2xl sm:rounded-3xl flex items-center justify-center transition-all duration-200 transform shadow-xl hover:shadow-2xl active:scale-95`}>
-                    <div className="text-white font-bold text-3xl sm:text-4xl md:text-5xl">
-                      {colorConfig.letter}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl">
+            {currentQuestion.choices.map((choice, index) => {
+              const letter = OPTION_LETTERS[index] ?? String(index + 1);
+              return (
+                <button
+                  key={choice}
+                  type="button"
+                  onClick={() => handleAnswerSelect(choice)}
+                  disabled={isDisabled}
+                  className={`aspect-square rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 transition-all duration-200 border-2 shadow-lg active:scale-[0.98] ${
+                    isDisabled
+                      ? "opacity-60 cursor-not-allowed border-[#E5DACE] bg-white"
+                      : "border-[#66023C]/20 bg-white hover:border-[#66023C]/40 hover:bg-[#66023C]/5 hover:shadow-xl cursor-pointer"
+                  }`}
+                >
+                  <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#66023C] text-[#F9F2E9] font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0">
+                    {letter}
+                  </span>
+                  <span className="text-[#1E1E1E] font-semibold text-sm sm:text-base text-center line-clamp-3 leading-tight">
+                    {choice}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>

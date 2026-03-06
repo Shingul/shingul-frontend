@@ -8,7 +8,8 @@ import {
 } from "../types/api";
 import { qk } from "../queries/keys";
 import toast from "react-hot-toast";
-import { useTransmit } from "./use-transmit";
+import { usePublicTransmit, useTransmit } from "./use-transmit";
+import { getTransmit } from "../lib/transmit";
 
 type GameSessionBroadcast = {
   id: string;
@@ -190,15 +191,27 @@ function usePublicGameSession(gameId: string) {
     [gameId, queryClient],
   );
 
-  useTransmit<GameSessionBroadcast>({
+  usePublicTransmit<GameSessionBroadcast>({
     channel: `game_session:${gameId}`,
     onMessage,
     autoCleanup: false,
   });
 }
+function leavePublicGameSession(gameId: string) {
+  const transmit = getTransmit();
+  if (!transmit) return;
+  const subscription = transmit.subscription(`game_session:${gameId}`);
+  try {
+    subscription.delete().catch(() => {});
+  } catch {
+    // ignore best-effort cleanup errors
+  }
+}
+
 export const useGameService = {
   gameSessionTransmit: useGameSessionTransmit,
   serverTimer: useServerTimer,
   participantJoined: useParticipantJoined,
   publicGameSession: usePublicGameSession,
+  leavePublicGameSession,
 };

@@ -1,172 +1,194 @@
 "use client";
-import { FaExclamationTriangle, FaGamepad } from "react-icons/fa";
 
 interface GamePreparationModalProps {
   isOpen: boolean;
   onContinue: () => void;
+  onClose?: () => void;
 }
 
 export default function GamePreparationModal({
   isOpen,
   onContinue,
+  onClose,
 }: GamePreparationModalProps) {
-
   if (!isOpen) return null;
-
-
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={(e) => e.stopPropagation()}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
+      onClick={onClose ?? (() => {})}
     >
       <div
-        className="glass rounded-2xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto glow-primary"
+        className="max-w-[800px] w-full bg-white rounded-xl shadow-2xl overflow-hidden border border-[#66023C]/10 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-center mb-6 flex flex-col items-center justify-center">
-          <div className="text-5xl sm:text-6xl mb-4"><FaGamepad /></div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-text mb-2">
-            Game Starting Soon!
-          </h2>
-          <p className="text-sm sm:text-base text-text-muted">
-            Here&apos;s what you need to know as the host
-          </p>
-        </div>
+        {/* Header */}
+        <header className="flex items-center justify-between border-b border-[#F9F2E9] px-6 sm:px-8 py-6 bg-white shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#66023C]/10 p-2 rounded-lg">
+              <span className="material-symbols-outlined text-[#66023C] text-2xl">
+                sports_esports
+              </span>
+            </div>
+            <h2 className="text-[#1E1E1E] text-xl font-bold tracking-tight">
+              Game Host Control
+            </h2>
+          </div>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex items-center justify-center rounded-full h-10 w-10 hover:bg-[#F9F2E9] transition-colors text-[#1E1E1E]/60 hover:text-[#1E1E1E]"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          )}
+        </header>
 
-        <div className="space-y-6 mb-8">
+        <div className="px-6 sm:px-8 py-8 overflow-y-auto flex-1">
+          {/* Hero Section */}
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#66023C]/5 text-[#66023C] text-xs font-bold uppercase tracking-wider mb-4">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#66023C] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#66023C]" />
+              </span>
+              Live Session
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#1E1E1E] mb-4 leading-tight">
+              Game Starting Soon
+            </h1>
+            <p className="text-[#1E1E1E]/60 text-base sm:text-lg max-w-2xl">
+              Welcome, Host. Please review the scoring logic and available
+              administrative controls before the session goes live.
+            </p>
+          </div>
+
           {/* Scoring Section */}
-          <div className="glass rounded-xl p-4 sm:p-5 border border-primary/20">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
+          <div className="mb-8">
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#1E1E1E]/40 mb-4 flex items-center gap-2">
+              Scoring Mechanics
+              <div className="h-px flex-1 bg-[#F9F2E9]" />
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="flex flex-col gap-4 p-4 sm:p-6 rounded-xl border border-[#F9F2E9] bg-[#F9F2E9]/30 hover:border-[#66023C]/20 transition-all group">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-white border border-[#F9F2E9] group-hover:bg-[#66023C] group-hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">verified</span>
+                </div>
+                <div>
+                  <h4 className="text-[#1E1E1E] font-bold mb-1">Accuracy</h4>
+                  <p className="text-[#1E1E1E]/60 text-sm leading-relaxed">
+                    Points awarded for each correct answer validated by the
+                    system.
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-text mb-2">How Scoring Works</h3>
-                <ul className="space-y-2 text-sm text-text-muted">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary shrink-0">•</span>
-                    <span>Players earn points for each correct answer</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary shrink-0">•</span>
-                    <span>Points are awarded based on speed - faster answers get more points</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary shrink-0">•</span>
-                    <span>The leaderboard updates after each question</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary shrink-0">•</span>
-                    <span>Players can see their rank and score on the leaderboard</span>
-                  </li>
-                </ul>
+              <div className="flex flex-col gap-4 p-4 sm:p-6 rounded-xl border border-[#F9F2E9] bg-[#F9F2E9]/30 hover:border-[#66023C]/20 transition-all group">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-white border border-[#F9F2E9] group-hover:bg-[#66023C] group-hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">avg_pace</span>
+                </div>
+                <div>
+                  <h4 className="text-[#1E1E1E] font-bold mb-1">Speed Bonus</h4>
+                  <p className="text-[#1E1E1E]/60 text-sm leading-relaxed">
+                    Faster responses earn up to 50 additional bonus points per
+                    round.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4 p-4 sm:p-6 rounded-xl border border-[#F9F2E9] bg-[#F9F2E9]/30 hover:border-[#66023C]/20 transition-all group">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-white border border-[#F9F2E9] group-hover:bg-[#66023C] group-hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">auto_graph</span>
+                </div>
+                <div>
+                  <h4 className="text-[#1E1E1E] font-bold mb-1">Streak</h4>
+                  <p className="text-[#1E1E1E]/60 text-sm leading-relaxed">
+                    Maintain a consecutive correct answer streak to multiply base
+                    scores.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Host Controls Section */}
-          <div className="glass rounded-xl p-4 sm:p-5 border border-accent/20">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                <svg
-                  className="w-5 h-5 text-accent"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#1E1E1E]/40 mb-4 flex items-center gap-2">
+              Administrative Access
+              <div className="h-px flex-1 bg-[#F9F2E9]" />
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={onContinue}
+                className="flex items-center justify-between p-4 rounded-lg bg-[#1E1E1E] text-white hover:opacity-90 transition-opacity text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[#66023C]">
+                    play_circle
+                  </span>
+                  <span className="font-medium">Start Session Now</span>
+                </div>
+                <span className="material-symbols-outlined text-white/40">
+                  chevron_right
+                </span>
+              </button>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-[#F9F2E9] hover:bg-[#F9F2E9]/50 transition-colors cursor-default">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[#1E1E1E]/60">
+                    group
+                  </span>
+                  <span className="font-medium text-[#1E1E1E]">
+                    Manage Participants
+                  </span>
+                </div>
+                <span className="material-symbols-outlined text-[#1E1E1E]/20 text-sm">
+                  open_in_new
+                </span>
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-text mb-2">Host Controls</h3>
-                <ul className="space-y-2 text-sm text-text-muted">
-                  <li className="flex items-start gap-2">
-                    <span className="text-accent shrink-0">•</span>
-                    <span>You&apos;ll see the full question and all answer options</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-accent shrink-0">•</span>
-                    <span>Monitor the live leaderboard to see player progress</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-accent shrink-0">•</span>
-                    <span>Questions advance automatically when time expires</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-accent shrink-0">•</span>
-                    <span>Keep an eye on the timer for each question</span>
-                  </li>
-                </ul>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-[#F9F2E9] hover:bg-[#F9F2E9]/50 transition-colors cursor-default">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[#1E1E1E]/60">
+                    settings_suggest
+                  </span>
+                  <span className="font-medium text-[#1E1E1E]">
+                    Game Settings
+                  </span>
+                </div>
+                <span className="material-symbols-outlined text-[#1E1E1E]/20 text-sm">
+                  open_in_new
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-[#F9F2E9] text-red-700 cursor-default">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined">cancel</span>
+                  <span className="font-medium">Terminate Session</span>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Safety Tips Section */}
-          {/* <div className="glass rounded-xl p-4 sm:p-5 border border-warning/20">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-warning/20 flex items-center justify-center shrink-0">
-                <FaExclamationTriangle className="w-5 h-5 text-warning" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-text mb-2">Safety Tips</h3>
-                <ul className="space-y-2 text-sm text-text-muted">
-                  <li className="flex items-start gap-2">
-                    <span className="text-warning shrink-0">•</span>
-                    <span>Ensure all participants are ready before starting</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-warning shrink-0">•</span>
-                    <span>Make sure players have a stable internet connection</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-warning shrink-0">•</span>
-                    <span>Keep the game code visible for late joiners</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-warning shrink-0">•</span>
-                    <span>Be ready to answer any questions from participants</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div> */}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-end">
-          <button
-            onClick={onContinue}
-            className="px-6 py-3 bg-linear-to-r from-primary to-primary2 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity glow-primary flex items-center justify-center gap-2"
-          >
-            <span>Continue to Game</span>
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        {/* Footer Info */}
+        <footer className="bg-[#F9F2E9]/30 px-6 sm:px-8 py-4 border-t border-[#F9F2E9] flex flex-wrap justify-between items-center gap-2 text-[11px] text-[#1E1E1E]/40 font-bold uppercase tracking-widest shrink-0">
+          <span>Game Host Control</span>
+          <div className="flex gap-4">
+            <a
+              className="hover:text-[#66023C] transition-colors"
+              href="#"
+              onClick={(e) => e.preventDefault()}
             >
-              <path d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+              Support
+            </a>
+            <a
+              className="hover:text-[#66023C] transition-colors"
+              href="#"
+              onClick={(e) => e.preventDefault()}
+            >
+              Documentation
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
   );
 }
-

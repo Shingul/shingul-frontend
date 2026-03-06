@@ -16,7 +16,6 @@ import {
   getFirstLine,
   countWords,
 } from "@/lib/utility";
-import { HiOutlineBookOpen, HiOutlineDocumentText, HiOutlineLightBulb } from "react-icons/hi";
 
 type UploadState = "idle" | "uploading" | "processing" | "error";
 
@@ -75,7 +74,6 @@ export default function CreateStudySetForm({
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     handleFileSelect(selectedFiles);
-    // Reset input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -97,7 +95,6 @@ export default function CreateStudySetForm({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const droppedFiles = Array.from(e.dataTransfer.files);
     handleFileSelect(droppedFiles);
   };
@@ -117,7 +114,7 @@ export default function CreateStudySetForm({
 
     if (!isTitleValid) {
       toast.error(
-        `Title is too long. Maximum ${MAX_TITLE_LENGTH} characters allowed. Please split your content - first line should be a short title, then add a new line for the detailed content.`
+        `Title is too long. Maximum ${MAX_TITLE_LENGTH} characters allowed.`
       );
       textareaRef.current?.focus();
       return;
@@ -138,7 +135,6 @@ export default function CreateStudySetForm({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Submit on Cmd/Ctrl + Enter
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
       e.preventDefault();
       handleSubmit();
@@ -152,56 +148,41 @@ export default function CreateStudySetForm({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Preview Section - Shows extracted title and description */}
+      {/* Preview strip */}
       {hasContent && (
-        <div className="mb-4 glass rounded-xl p-4 border border-primary/20">
+        <div className="mb-4 p-4 rounded-xl bg-white/40 backdrop-blur-sm border border-[#66023C]/5">
           <div className="flex items-start gap-3">
-            <div className="text-2xl"><HiOutlineBookOpen className="w-8 h-8 text-primary" /></div>
             <div className="flex-1 min-w-0">
-              <div className="mb-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-muted uppercase tracking-wide">
-                    Title
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#1E1E1E]/40">
+                  Title
+                </span>
+                {firstLineLength > 0 && (
+                  <span
+                    className={`text-[10px] font-bold ${
+                      isTitleValid ? "text-[#1E1E1E]/40" : "text-red-500"
+                    }`}
+                  >
+                    {firstLineLength} / {MAX_TITLE_LENGTH}
                   </span>
-                  {firstLineLength > 0 && (
-                    <span
-                      className={`text-xs font-semibold ${
-                        isTitleValid ? "text-muted" : "text-red-400"
-                      }`}
-                    >
-                      {firstLineLength} / {MAX_TITLE_LENGTH}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm font-semibold text-text mt-1 wrap-break-word">
-                  {extractedTitle || (
-                    <span className="text-muted italic">No title yet</span>
-                  )}
-                </p>
-                {!isTitleValid && firstLineLength > 0 && (
-                  <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                    <svg
-                      className="w-3 h-3"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Title is too long. Press Enter after the title to add
-                    detailed content below.
-                  </p>
                 )}
               </div>
-              {extractedDescription && (
-                <div>
-                  <span className="text-xs font-semibold text-muted uppercase tracking-wide">
+              <p className="text-sm font-semibold text-[#1E1E1E] wrap-break-word">
+                {extractedTitle || (
+                  <span className="text-[#1E1E1E]/30 italic">No title yet</span>
+                )}
+              </p>
+              {!isTitleValid && firstLineLength > 0 && (
+                <p className="text-xs text-red-500 mt-1">
+                  Title is too long. Press Enter to add content below.
+                </p>
+              )}
+              {extractedDescription && extractedDescription !== extractedTitle && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#1E1E1E]/40">
                     Content
                   </span>
-                  <p className="text-xs text-muted mt-1 line-clamp-2 wrap-break-word">
+                  <p className="text-xs text-[#1E1E1E]/50 mt-0.5 line-clamp-2 wrap-break-word">
                     {extractedDescription}
                   </p>
                 </div>
@@ -211,52 +192,202 @@ export default function CreateStudySetForm({
         </div>
       )}
 
-      {/* Main Input Area */}
-      <div
-        className={`relative glass rounded-2xl border-2 transition-colors ${
-          isDragging
-            ? "border-primary bg-primary/10"
-            : "border-transparent hover:border-primary/20"
-        } ${wrapperClassName}`}
-      >
-        <form onSubmit={handleSubmit} className="flex flex-col">
-          <div className="relative flex-1">
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter a short title on the first line...&#10;&#10;Then press Enter and add your detailed study material below."
-              rows={6}
-              className="w-full px-4 py-3 sm:px-6 sm:py-4 bg-transparent text-text placeholder-muted focus:outline-none resize-none text-sm sm:text-base"
-              disabled={uploadState !== "idle"}
-              style={{ minHeight: "120px", maxHeight: "400px" }}
-            />
-            {isDragging && (
-              <div className="absolute inset-0 flex items-center justify-center bg-primary/10 rounded-2xl pointer-events-none">
-                <div className="text-center">
-                  <div className="text-4xl mb-2 flex justify-center"><HiOutlineDocumentText className="w-10 h-10 text-primary" /></div>
-                  <p className="text-sm font-semibold text-primary">
-                    Drop PDF files here
-                  </p>
-                </div>
+      {/* Main textbox area */}
+      <div className="relative group">
+        <div className="absolute -inset-1 bg-linear-to-r from-[#66023C]/10 to-[#e6a83d]/10 rounded-2xl blur opacity-0 group-hover:opacity-40 transition duration-1000" />
+        <div
+          className={`relative bg-white/50 border rounded-2xl shadow-2xl backdrop-blur-sm transition-colors ${
+            isDragging
+              ? "border-[#66023C] bg-[#66023C]/5"
+              : "border-[#1E1E1E]/5"
+          }`}
+        >
+          <form onSubmit={handleSubmit} className="flex flex-col">
+            {/* Window dots header */}
+            <div className="flex items-center justify-between border-b border-[#1E1E1E]/5 px-4 md:px-8 py-4">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-400/20" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400/20" />
+                <div className="w-3 h-3 rounded-full bg-green-400/20" />
               </div>
-            )}
-          </div>
+              <div className="text-[10px] uppercase tracking-widest text-[#1E1E1E]/30 font-bold">
+                New Session
+              </div>
+            </div>
 
-          <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-t border-muted/20 gap-3">
-            <div className="flex items-center gap-2">
+            {/* Textarea */}
+            <div className="relative">
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Paste your messy research notes here, or drag a heavy PDF to simplify..."
+                rows={8}
+                className="w-full px-4 md:px-8 py-6 bg-transparent border-none focus:ring-0 focus:outline-none text-lg md:text-xl text-[#1E1E1E]/80 placeholder:text-[#1E1E1E]/20 resize-none font-light leading-relaxed"
+                disabled={uploadState !== "idle"}
+                style={{ minHeight: "200px", maxHeight: "500px" }}
+              />
+              {isDragging && (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#66023C]/5 rounded-b-2xl pointer-events-none">
+                  <div className="text-center">
+                    <svg
+                      className="w-10 h-10 text-[#66023C] mx-auto mb-2"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-sm font-semibold text-[#66023C]">
+                      Drop PDF files here
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom action bar */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-4 md:px-8 py-4 border-t border-[#1E1E1E]/5">
+              <div className="flex items-center gap-4 text-[#1E1E1E]/40">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={
+                    uploadState !== "idle" || files.length >= MAX_PDF_FILES
+                  }
+                  className="flex items-center gap-2 hover:text-[#66023C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="text-xs font-bold uppercase tracking-wider">
+                    Upload PDF
+                  </span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                  disabled={uploadState !== "idle"}
+                />
+
+                {/* Word count */}
+                {hasContent && (
+                  <>
+                    <div className="w-px h-4 bg-[#1E1E1E]/10" />
+                    <span
+                      className={`text-xs font-bold ${
+                        isDescriptionValid
+                          ? "text-[#1E1E1E]/30"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {wordCount.toLocaleString()} /{" "}
+                      {STUDY_SET_DESCRIPTION_MAX_WORDS.toLocaleString()}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                {showCancel && (
+                  <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="flex items-center justify-center rounded-full h-12 px-6 border border-[#1E1E1E]/10 text-[#1E1E1E]/60 text-sm font-bold transition-all hover:bg-[#1E1E1E]/5"
+                    disabled={uploadState !== "idle"}
+                  >
+                    Cancel
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={
+                    uploadState !== "idle" ||
+                    !extractedTitle.trim() ||
+                    !isTitleValid ||
+                    !isDescriptionValid
+                  }
+                  className="w-full md:w-auto flex min-w-[200px] items-center justify-center gap-3 rounded-full h-14 px-8 bg-[#66023C] text-white text-base font-bold transition-all hover:scale-[1.02] shadow-xl shadow-[#66023C]/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {uploadState === "idle" ? (
+                    <>
+                      <span>Begin Focused Study</span>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </>
+                  ) : uploadState === "uploading" ? (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      <span>Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      <span>Processing...</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* File chips */}
+      {files.length > 0 && (
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          {files.map((file, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/50 border border-[#1E1E1E]/5 rounded-full text-xs"
+            >
+              <svg
+                className="w-3.5 h-3.5 text-[#66023C]/60"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-[#1E1E1E] max-w-[120px] truncate font-medium">
+                {file.name}
+              </span>
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={
-                  uploadState !== "idle" || files.length >= MAX_PDF_FILES
-                }
-                className="p-2 glass rounded-lg text-muted hover:text-text hover:bg-bg-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Upload PDF files"
+                onClick={() => removeFile(index)}
+                disabled={uploadState !== "idle"}
+                className="text-[#1E1E1E]/30 hover:text-[#1E1E1E] transition-colors disabled:opacity-50"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -264,133 +395,18 @@ export default function CreateStudySetForm({
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  <path d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept=".pdf"
-                onChange={handleFileInputChange}
-                className="hidden"
-                disabled={uploadState !== "idle"}
-              />
-
-              {/* Uploaded Files Display */}
-              {files.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  {files.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-1.5 px-2 py-1 glass rounded-lg text-xs"
-                    >
-                      <HiOutlineDocumentText className="w-4 h-4 text-muted shrink-0" />
-                      <span className="text-text max-w-[100px] truncate">
-                        {file.name}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index)}
-                        disabled={uploadState !== "idle"}
-                        className="text-muted hover:text-text transition-colors disabled:opacity-50"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  {files.length >= MAX_PDF_FILES && (
-                    <span className="text-xs text-muted">
-                      (Max {MAX_PDF_FILES})
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
-
-            {/* Right: Word Count and Submit */}
-            <div className="flex items-center gap-3">
-              {/* Word Count */}
-              {hasContent && (
-                <div className="text-xs text-muted">
-                  <span
-                    className={
-                      isDescriptionValid ? "text-muted" : "text-red-400"
-                    }
-                  >
-                    {wordCount.toLocaleString()} /{" "}
-                    {STUDY_SET_DESCRIPTION_MAX_WORDS.toLocaleString()}
-                  </span>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={
-                  uploadState !== "idle" ||
-                  !extractedTitle.trim() ||
-                  !isTitleValid ||
-                  !isDescriptionValid
-                }
-                className="px-4 py-2 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shrink-0"
-              >
-                {uploadState === "idle" ? (
-                  <>
-                    <span>Create</span>
-                    <kbd className="hidden sm:inline px-1.5 py-0.5 text-xs bg-white/20 rounded">
-                      ⌘↵
-                    </kbd>
-                  </>
-                ) : uploadState === "uploading" ? (
-                  <>
-                    <LoadingSpinner size="sm" />
-                    <span>Uploading...</span>
-                  </>
-                ) : (
-                  <>
-                    <LoadingSpinner size="sm" />
-                    <span>Processing...</span>
-                  </>
-                )}
-              </button>
-
-              {showCancel && (
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="px-4 py-2 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-sm shrink-0"
-                  disabled={uploadState !== "idle"}
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {/* Helper Text */}
-      <div className="mt-3 text-xs text-muted text-center">
-        <p>
-          <HiOutlineLightBulb className="w-4 h-4 inline-block align-middle mr-1 text-warning" /><strong>Tip:</strong> First line becomes the title. Press{" "}
-          <kbd className="px-1.5 py-0.5 bg-bg-1 rounded text-xs">⌘↵</kbd> or{" "}
-          <kbd className="px-1.5 py-0.5 bg-bg-1 rounded text-xs">
-            Ctrl+Enter
-          </kbd>{" "}
-          to create
-        </p>
-      </div>
+          ))}
+          {files.length >= MAX_PDF_FILES && (
+            <span className="text-xs text-[#1E1E1E]/30">
+              (Max {MAX_PDF_FILES})
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

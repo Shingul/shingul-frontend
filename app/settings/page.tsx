@@ -1,6 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuthUser } from "@/src/queries/auth.queries";
@@ -23,9 +24,15 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar activeTab="Settings" />
       <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0">
         <div className="max-w-3xl mx-auto">
+          <Breadcrumbs
+            items={[
+              { label: "Dashboard", href: "/dashboard" },
+              { label: "Settings" },
+            ]}
+          />
           <h1 className="text-2xl sm:text-3xl font-bold text-text mb-6 sm:mb-8">
             Settings
           </h1>

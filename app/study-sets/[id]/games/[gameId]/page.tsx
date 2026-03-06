@@ -3,6 +3,7 @@
 import { use } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import Sidebar from "@/components/Sidebar";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useGame } from "@/src/queries/games.queries";
 // import StartGameModal from "@/components/modals/StartGameModal";
@@ -31,7 +32,7 @@ export default function GameLobbyPage({
   const [showPreparationModal, setShowPreparationModal] = useState(false);
   const router = useRouter();
   useGameService.participantJoined(gameId, "host");
-  const { joinUrl, handleCopyCode, handleCopyUrl } = useJoinCode(game?.code || ""); 
+  const { joinUrl, handleCopyUrl } = useJoinCode(game?.code || ""); 
   console.log("players", game?.players);
   
 
@@ -91,7 +92,7 @@ export default function GameLobbyPage({
   if (isLoading || isStarting || isEnding) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar activeTab="Study Sets" />
         <div className="flex justify-center items-center py-20 flex-1">
           <LoadingSpinner size="lg" />
         </div>
@@ -102,7 +103,7 @@ export default function GameLobbyPage({
   if (!game) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar activeTab="Study Sets" />
         <div className="flex flex-col justify-center items-center py-20 flex-1">
           <p className="text-text mb-4">Game not found</p>
           <Link
@@ -116,142 +117,61 @@ export default function GameLobbyPage({
     );
   }
 
-  const statusColors = {
-    lobby: "bg-primary2/20 text-primary2",
-    live: "bg-green-500/20 text-green-400",
-    ended: "bg-gray-500/20 text-gray-300",
-    cancelled: "bg-gray-500/20 text-gray-300",
-  };
-
-  const statusLabels = {
-    lobby: "Waiting",
-    live: "Active",
-    ended: "Ended",
-    cancelled: "Cancelled",
-    completed: "Completed",
-  };
-
   // const isHost = game.players.some((p) => p.isHost);
   const isHost = game.isHost;
-  
+
+  const questionCount = game.totalQuestions ?? 0;
+  const timeLimit = game.secondsPerQuestion ?? 0;
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-0 flex flex-col overflow-hidden">
-        <div className="max-w-4xl mx-auto flex flex-col h-full overflow-hidden w-full">
-          {/* Fixed Header Section */}
-          <div className="shrink-0">
-            <div className="mb-2 sm:mb-3">
-              <Link
-                href={`/study-sets/${id}`}
-                className="text-muted hover:text-text transition-colors text-xs sm:text-sm"
-              >
-                ← Back to Study Set
-              </Link>
-            </div>
+    <div className="flex min-h-screen bg-[#F9F2E9]">
+      <Sidebar activeTab="Study Sets" />
+      <main className="flex-1 lg:ml-0 flex flex-col px-4 sm:px-6 md:px-10 py-6">
+        <div className="max-w-5xl w-full mx-auto flex flex-col flex-1">
+          {/* Breadcrumbs */}
+          <div className="mb-6">
+            <Breadcrumbs
+              items={[
+                { label: "Dashboard", href: "/dashboard" },
+                { label: "Study Set", href: `/study-sets/${id}` },
+                { label: game.title || "Game Lobby" },
+              ]}
+            />
+          </div>
 
-            {/* Host Controls */}
-            {isHost && (
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-3 sm:mb-4">
-                {game.status === "lobby" && (
-                  <button
-                    onClick={handleStartGame}
-                    className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary text-xs sm:text-sm"
-                  >
-                    Start Game
-                  </button>
-                )}
-                {game.status === "live" && (
-                  <button
-                    onClick={handleEndGame}
-                    className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-error/90 text-white rounded-lg font-semibold hover:bg-error transition-colors text-xs sm:text-sm"
-                  >
-                    End Game
-                  </button>
-                )}
-                <button className="px-3 sm:px-4 py-2 sm:py-2.5 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-xs sm:text-sm">
-                  Settings
-                </button>
-              </div>
-            )}
-
-            {/* Game Code and QR Code */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-              {/* Game Code */}
-              <div className="glass rounded-xl p-4 sm:p-5 text-center glow-primary">
-                <p className="text-xs text-muted mb-1.5">Game Code</p>
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary2 mb-2 sm:mb-3">
-                  {game.code}
-                </div>
-                <span
-                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold mb-3 inline-block ${statusColors[game.status]}`}
-                >
-                  {statusLabels[game.status]}
+          {/* Hero: Code + QR + Info */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            {/* Left: Lobby title, code, URL, QR */}
+            <div className="flex flex-col items-center md:items-start space-y-8">
+              <div className="space-y-3 text-center md:text-left">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.3em] text-[#66023C]/60">
+                  Game Lobby
                 </span>
-                <button
-                  onClick={handleCopyCode}
-                  className="w-full mt-2 px-3 py-1.5 glass border border-primary/50 text-primary rounded-lg font-semibold hover:bg-primary/10 transition-colors text-xs sm:text-sm flex items-center justify-center gap-1.5"
-                >
-                  <svg
-                    className="w-3 h-3 sm:w-4 sm:h-4"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copy Code
-                </button>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter text-[#1E1E1E] leading-none">
+                  {game.code}
+                </h1>
+                <p className="text-sm sm:text-base text-[#1E1E1E]/60 font-medium">
+                  Join at{" "}
+                  <span className="text-[#66023C] font-semibold underline">
+                    shingul.app
+                  </span>
+                </p>
               </div>
 
-              {/* QR Code */}
-              <div className="glass rounded-xl p-4 sm:p-5 text-center glow-primary">
-                <p className="text-xs text-muted mb-2 sm:mb-3">Scan to Join</p>
-                <div className="flex justify-center mb-2 sm:mb-3">
-                  <div className="bg-white p-2 sm:p-3 rounded-xl">
-                    <QRCodeSVG value={joinUrl} size={120} />
-                  </div>
+              <div className="group relative p-6 bg-white rounded-[1.75rem] shadow-xl shadow-[#66023C]/5 border border-[#66023C]/5">
+                <div className="w-44 h-44 sm:w-48 sm:h-48 bg-white flex items-center justify-center overflow-hidden rounded-xl">
+                  <QRCodeSVG value={joinUrl} size={180} />
                 </div>
-                <button
-                  onClick={handleCopyUrl}
-                  className="w-full px-3 py-1.5 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-xs sm:text-sm flex items-center justify-center gap-1.5"
-                >
-                  <svg
-                    className="w-3 h-3 sm:w-4 sm:h-4"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copy URL
-                </button>
-                <p className="text-[10px] sm:text-xs text-muted mt-2 break-all line-clamp-2">{joinUrl}</p>
-              </div>
-            </div>
-
-            {/* Game Info - Fixed */}
-            {game.status === "live" && (
-              <div className="glass rounded-xl p-3 sm:p-4 mb-3 sm:mb-4">
-               <div className="flex items-center justify-between">
-               <h3 className="text-sm sm:text-base font-bold text-text mb-2 sm:mb-3">
-                  Game Progress
-                </h3>
-                <Link
-                    href={`/study-sets/${id}/games/play/host?gameId=${gameId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    prefetch
-                    className="text-xs text-muted hover:text-text transition-colors inline-flex items-center gap-2 text-primary"
+                <div className="mt-4 flex flex-col items-center">
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#1E1E1E]/40">
+                    Scan to Join
+                  </span>
+                  <button
+                    onClick={handleCopyUrl}
+                    className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#66023C]/5 text-[11px] font-semibold text-[#66023C] hover:bg-[#66023C]/10 transition-colors"
                   >
                     <svg
-                      className="w-4 h-4"
+                      className="w-3 h-3"
                       fill="none"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -259,56 +179,168 @@ export default function GameLobbyPage({
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path d="M15 19l-7-7 7-7" />
+                      <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
-                    Host View
-                  </Link>
-               </div>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="flex-1">
-                    <div className="w-full bg-bg-1 rounded-full h-1.5 sm:h-2">
-                      <div
-                        className="bg-linear-to-r from-primary to-primary2 h-1.5 sm:h-2 rounded-full transition-all"
-                        style={{
-                          width: `${
-                            game.currentQuestionNumber && game.totalQuestions
-                              ? (game.currentQuestionNumber / game.totalQuestions) * 100
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted shrink-0">
-                    {game.currentQuestionNumber}/{game.totalQuestions}
-                  </span>
+                    Copy join link
+                  </button>
+                  <p className="mt-2 text-[10px] sm:text-xs text-[#1E1E1E]/35 break-all line-clamp-2">
+                    {joinUrl}
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Players List Section - Optimized to show 10-20 players without scrolling */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="glass rounded-2xl p-3 sm:p-4 flex-1 flex flex-col min-h-0">
-              <h2 className="text-lg sm:text-xl font-bold text-text mb-3 shrink-0">
-                Players ({game?.players.length})
+            {/* Right: Game info + primary action */}
+            <div className="bg-white/60 backdrop-blur-sm rounded-[2.25rem] p-8 sm:p-10 border border-white flex flex-col justify-between min-h-[260px]">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-semibold text-[#1E1E1E]">
+                      {game.status === "live"
+                        ? "Game in progress"
+                        : "Waiting for players"}
+                    </h3>
+                    <p className="mt-1 text-sm text-[#1E1E1E]/60">
+                      {game.status === "live"
+                        ? "Players are answering questions in real time."
+                        : "Share the code so everyone can join before you begin."}
+                    </p>
+                  </div>
+                  <div className="relative h-3 w-3">
+                    <span className="absolute inline-flex h-3 w-3 rounded-full bg-[#66023C] opacity-60 animate-ping" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-[#66023C]" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="p-4 bg-white rounded-2xl border border-[#66023C]/5">
+                    <span className="block text-2xl sm:text-3xl font-bold text-[#66023C]">
+                      {questionCount}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#1E1E1E]/40">
+                      Questions
+                    </span>
+                  </div>
+                  <div className="p-4 bg-white rounded-2xl border border-[#66023C]/5">
+                    <span className="block text-2xl sm:text-3xl font-bold text-[#66023C]">
+                      {timeLimit || "—"}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#1E1E1E]/40">
+                      Seconds / Question
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {/* Live Game Link */}
+            {game.status === "live" && (
+                <Link href={`/study-sets/${id}/games/play/host?gameId=${gameId}`} className="w-full mt-4 inline-flex items-center justify-center gap-2 bg-[#66023C] text-[#F9F2E9] px-4 py-3 rounded-2xl text-sm sm:text-base font-bold tracking-[0.18em] uppercase hover:opacity-95 transition-all shadow-lg shadow-[#66023C]/25">
+                <span className="material-symbols-outlined text-base mr-2">
+                  play_arrow
+                </span>
+                Live Game
+                </Link>
+            )}
+
+              <div className="mt-8">
+                {isHost ? (
+                  <>
+                    {game.status === "lobby" && (
+                      <button
+                        onClick={handleStartGame}
+                        className="w-full bg-[#66023C] text-[#F9F2E9] py-4 rounded-2xl text-sm sm:text-base font-bold tracking-[0.18em] uppercase hover:opacity-95 transition-all shadow-lg shadow-[#66023C]/25"
+                      >
+                        Start Game Now
+                      </button>
+                    )}
+                    {game.status === "live" && (
+                      <button
+                        onClick={handleEndGame}
+                        className="w-full bg-red-600/90 text-white py-4 rounded-2xl text-sm sm:text-base font-bold tracking-[0.18em] uppercase hover:bg-red-600 transition-all shadow-lg shadow-red-500/25"
+                      >
+                        End Game
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between gap-3 text-xs sm:text-sm text-[#1E1E1E]/60">
+                    <span>Waiting for host to start the game.</span>
+                    <HiOutlineClock className="w-5 h-5 text-[#66023C]" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Game Leaderboard */}
+          {game.status == "ended" && (
+              <section className="mt-8 backdrop-blur-sm bg-white/60 rounded-2xl p-6 border border-[#66023C]/5">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-[#1E1E1E]">
+                    Game Leaderboard
+                  </h2>
+                  <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-[#66023C]/60">
+                    {game.endedAt ? new Date(game.endedAt).toLocaleString() : "N/A"}
+                  </span>
+                </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  {game.players.sort((a, b) => b.score - a.score).map((player) => (
+                    <div key={player.id} className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#66023C]/8 flex items-center justify-center text-[#66023C] font-bold text-sm sm:text-base">
+                        {player.nickname[0].toUpperCase()}
+                      </div>
+                      <span className="font-semibold text-sm sm:text-base text-[#1E1E1E]">
+                        {player.nickname}
+                      </span>
+                      <span className="text-xs font-bold text-[#1E1E1E] shrink-0 ml-2">
+                        {player.score.toLocaleString()} pt
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+          {/* Players list */}
+          <section className="mt-14 sm:mt-16 flex-1 flex flex-col">
+            <div className="flex items-center gap-4 mb-6 px-1">
+              <h2 className="text-sm sm:text-base font-semibold text-[#1E1E1E] flex items-center gap-2">
+                <span className="material-symbols-outlined text-base sm:text-lg text-[#66023C]">
+                  group
+                </span>
+                Players Joined ({game.players.length})
               </h2>
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 auto-rows-max">
+              <div className="hidden sm:block flex-1 h-px bg-[#66023C]/10" />
+            </div>
+
+            {game.players.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <p className="text-sm font-semibold text-[#1E1E1E]/40 mb-2">
+                  No one has joined yet.
+                </p>
+                <p className="text-xs text-[#1E1E1E]/50">
+                  Share the game code{" "}
+                  <span className="font-semibold text-[#66023C]">
+                    {game.code}
+                  </span>{" "}
+                  or the join link above.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
                 {game.players.map((player) => (
                   <div
                     key={player.id}
-                    className="glass rounded-xl p-2.5 sm:p-3 flex flex-col items-center text-center relative group"
+                    className="flex items-center gap-3 bg-white px-5 py-3 rounded-full border border-[#66023C]/8 shadow-sm hover:shadow-md transition-shadow relative"
                   >
-                    {/* Kick button - only visible to host and not for host themselves */}
                     {isHost && !player.isHost && game.status === "lobby" && (
                       <button
                         onClick={() => handleKickPlayer(player.id, player.nickname)}
                         disabled={isKickingPlayer}
-                        className="absolute top-1 right-1 p-1 rounded-full hover:bg-error/20 text-error hover:text-error/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="absolute -top-1 -right-1 p-1 rounded-full bg-white/80 hover:bg-red-50 text-red-500 hover:text-red-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         title={`Remove ${player.nickname}`}
                       >
                         <svg
-                          className="w-3 h-3 sm:w-4 sm:h-4"
+                          className="w-3 h-3"
                           fill="none"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -320,51 +352,42 @@ export default function GameLobbyPage({
                         </svg>
                       </button>
                     )}
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-r from-primary to-primary2 flex items-center justify-center text-white font-bold text-base sm:text-lg mb-2 shadow-md shrink-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#66023C]/8 flex items-center justify-center text-[#66023C] font-bold text-sm sm:text-base">
                       {player.nickname[0].toUpperCase()}
                     </div>
-                    <div className="w-full min-w-0">
-                      <div className="flex items-center justify-center gap-1.5 mb-1 flex-wrap">
-                        <span className="font-semibold text-text text-xs sm:text-sm truncate max-w-full">
-                          {player.nickname}
-                        </span>
-                        {player.isHost && (
-                          <span className="px-1.5 py-0.5 bg-primary/20 text-primary rounded text-[10px] font-semibold shrink-0">
-                            Host
-                          </span>
-                        )}
-                      </div>
-                      {game.status !== "lobby" && (
-                        <p className="text-xs text-muted">
-                          Score: {player.score}
-                        </p>
-                      )}
-                    </div>
+                    <span className="font-semibold text-sm sm:text-base text-[#1E1E1E]">
+                      {player.nickname}
+                    </span>
+                    {player.isHost && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#66023C]/5 text-[#66023C] text-[10px] font-semibold uppercase tracking-[0.18em]">
+                        Host
+                      </span>
+                    )}
                   </div>
                 ))}
-              </div>
-            </div>
 
-            {/* Fixed Footer Section */}
-            {game.status === "lobby" && !isHost && (
-              <div className="glass rounded-2xl p-4 sm:p-6 text-center shrink-0 mt-3">
-                <div className="text-2xl sm:text-3xl mb-2 flex justify-center"><HiOutlineClock className="w-8 h-8 sm:w-10 sm:h-10 text-primary" /></div>
-                <p className="text-sm sm:text-base text-text font-semibold mb-1">
-                  Waiting for host to start...
-                </p>
-                <p className="text-xs sm:text-sm text-muted">
-                  Share the game code with friends to join!
-                </p>
+                {/* Placeholder pill */}
+                <div className="flex items-center gap-3 bg-[#E5E1DA]/40 px-5 py-3 rounded-full border border-dashed border-[#1E1E1E]/20">
+                  <div className="w-9 h-9 rounded-full border-2 border-dashed border-[#1E1E1E]/30 flex items-center justify-center text-[#1E1E1E]/40">
+                    <span className="material-symbols-outlined text-xs">
+                      hourglass_empty
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-[#1E1E1E]/40 italic">
+                    Waiting for more players…
+                  </span>
+                </div>
               </div>
             )}
-          </div>
+          </section>
         </div>
-      </main>
 
-      <GamePreparationModal
-        isOpen={showPreparationModal}
-        onContinue={handleContinueToGame}
-      />
+        <GamePreparationModal
+          isOpen={showPreparationModal}
+          onContinue={handleContinueToGame}
+          onClose={() => setShowPreparationModal(false)}
+        />
+      </main>
     </div>
   );
 }

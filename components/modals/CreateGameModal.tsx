@@ -46,15 +46,15 @@ export default function CreateGameModal({
   const [gameCreated, setGameCreated] = useState(false);
   const [createdGameId, setCreatedGameId] = useState<string>("");
   const [createdGameCode, setCreatedGameCode] = useState<string>("");
-  const { joinUrl, handleCopyCode, handleCopyUrl } = useJoinCode(createdGameCode || "");
+  const { joinUrl, handleCopyCode, handleCopyUrl } = useJoinCode(
+    createdGameCode || ""
+  );
   const queryClient = useQueryClient();
   const createGame = useCreateGame();
   const createQuiz = useCreateQuiz();
 
-  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      // Defer state updates to avoid cascading renders
       setTimeout(() => {
         setActiveTab("select");
         setSelectedQuizId("");
@@ -71,8 +71,6 @@ export default function CreateGameModal({
 
   if (!isOpen) return null;
 
- 
-
   const handleGoToLobby = () => {
     router.push(`/study-sets/${studySetId}/games/${createdGameId}`);
     onClose();
@@ -80,7 +78,6 @@ export default function CreateGameModal({
 
   const handleCreateQuiz = (formData: CreateQuizFormData) => {
     const payload = buildQuizPayload(studySetId, formData, description);
-
     createQuiz.mutate(payload, {
       onSuccess: async (data) => {
         await queryClient.invalidateQueries({
@@ -98,7 +95,6 @@ export default function CreateGameModal({
       toast.error("Please select or create a quiz first", { duration: 3000 });
       return;
     }
-
     createGame.mutate(
       {
         studySetId,
@@ -118,90 +114,87 @@ export default function CreateGameModal({
     );
   };
 
-  // Success state
+  const isPending = createGame.isPending || createQuiz.isPending;
+
+  // Success state — Stitch "Game Created Modal"
   if (gameCreated) {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#F9F2E9]/90 backdrop-blur-sm"
         onClick={onClose}
       >
         <div
-          className="glass rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto glow-primary"
+          className="relative w-full max-w-[520px] bg-white rounded-xl shadow-2xl overflow-hidden border border-[#66023C]/5"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="text-center mb-6">
-            <p className="text-sm sm:text-base text-muted">
-              Share the code or QR code for players to join
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-6 right-6 text-[#1E1E1E]/40 hover:text-[#66023C] transition-colors duration-200 z-10"
+          >
+            <span className="material-symbols-outlined text-[28px]">close</span>
+          </button>
 
-          {/* Game Code */}
-          <div className="glass rounded-xl p-6 sm:p-8 mb-6 text-center">
-            <p className="text-xs sm:text-sm text-muted mb-3">Game Code</p>
-            <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary2 mb-4">
-              {createdGameCode}
+          <div className="px-8 pt-12 pb-10 flex flex-col items-center">
+            <div className="size-16 bg-[#66023C]/10 rounded-full flex items-center justify-center mb-8">
+              <span className="material-symbols-outlined text-[#66023C] text-3xl">
+                celebration
+              </span>
             </div>
-            <button
-              onClick={handleCopyCode}
-              className="px-4 py-2 glass border border-primary/50 text-primary rounded-lg font-semibold hover:bg-primary/10 transition-colors text-sm flex items-center gap-2 mx-auto"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Copy Code
-            </button>
-          </div>
+            <h1 className="text-[#1E1E1E] text-3xl font-bold leading-tight tracking-tight text-center mb-3">
+              Your Game is Ready
+            </h1>
+            <p className="text-[#1E1E1E]/60 text-base font-normal leading-relaxed text-center max-w-[340px] mb-10">
+              Share this code with your group or scan the QR code to join the
+              lobby.
+            </p>
 
-          {/* QR Code */}
-          <div className="glass rounded-xl p-6 sm:p-8 mb-6 text-center">
-            <p className="text-xs sm:text-sm text-muted mb-4">Scan to Join</p>
-            <div className="flex justify-center mb-4">
-              <div className="bg-white p-4 rounded-xl">
-                <QRCodeSVG value={joinUrl || ""} size={200} />
+            <div className="w-full bg-[#F9F2E9] rounded-xl p-8 mb-8 flex flex-col items-center border border-[#66023C]/10">
+              <span className="text-[#66023C] text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                Game Code
+              </span>
+              <div className="flex items-center gap-4">
+                <span className="text-[#1E1E1E] text-5xl font-bold tracking-widest font-display">
+                  {createdGameCode}
+                </span>
               </div>
             </div>
-            <button
-              onClick={handleCopyUrl}
-              className="px-4 py-2 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-sm flex items-center gap-2 mx-auto"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Copy Join URL
-            </button>
-            <p className="text-xs text-muted mt-3 break-all">{joinUrl}</p>
-          </div>
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={handleGoToLobby}
-              className="flex-1 px-4 py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary text-sm"
-            >
-              Go to Game Lobby
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2.5 glass border border-muted/30 text-text rounded-lg font-semibold hover:bg-bg-1 transition-colors text-sm"
-            >
-              Close
-            </button>
+            <div className="flex flex-col items-center mb-10">
+              <div className="p-4 bg-white border border-zinc-100 rounded-xl shadow-sm mb-4">
+                <QRCodeSVG value={joinUrl || ""} size={128} />
+              </div>
+              <p className="text-[#1E1E1E]/40 text-xs font-medium uppercase tracking-wider">
+                Quick Join QR
+              </p>
+            </div>
+
+            <div className="w-full flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={handleGoToLobby}
+                className="w-full py-4 bg-[#66023C] text-white rounded-lg font-bold text-base hover:opacity-90 transition-all flex items-center justify-center gap-2"
+              >
+                Go to Game Lobby
+                <span className="material-symbols-outlined text-xl">
+                  arrow_forward
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="w-full py-4 bg-transparent border-2 border-[#66023C]/20 text-[#66023C] rounded-lg font-bold text-base hover:bg-[#66023C]/5 transition-all flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-xl">
+                  content_copy
+                </span>
+                Copy Code
+              </button>
+            </div>
+
+            <p className="mt-8 text-[#1E1E1E]/30 text-xs font-medium text-center">
+              Need help? Contact the game organizer.
+            </p>
           </div>
         </div>
       </div>
@@ -211,102 +204,104 @@ export default function CreateGameModal({
   // Main form state
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-black/30 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="glass rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto glow-primary"
+        className="w-full max-w-[640px] bg-white rounded-xl shadow-sm overflow-hidden border border-[#E5DACE] max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-text">
-            Create Live Game
-          </h2>
+        {/* Header */}
+        <header className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-[#E5DACE] shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#66023C]/10 flex items-center justify-center text-[#66023C]">
+              <span className="material-symbols-outlined text-2xl">
+                videogame_asset
+              </span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-[#1E1E1E]">
+                Create Live Game
+              </h1>
+              <p className="text-xs text-[#1E1E1E]/60 uppercase tracking-widest font-semibold">
+                Shingul Studio
+              </p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            disabled={createGame.isPending || createQuiz.isPending}
-            className="p-2 glass rounded-lg text-muted hover:text-text hover:bg-bg-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Close modal"
+            disabled={isPending}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#F9F2E9] transition-colors text-[#1E1E1E]/40 disabled:opacity-50"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <span className="material-symbols-outlined">close</span>
           </button>
-        </div>
+        </header>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-muted/20">
+        <div className="flex border-b border-[#E5DACE] px-6 sm:px-8 shrink-0">
           <button
             onClick={() => setActiveTab("select")}
-            disabled={createGame.isPending || createQuiz.isPending}
-            className={`px-4 py-2 font-semibold transition-colors text-sm ${
+            disabled={isPending}
+            className={`px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] transition-colors ${
               activeTab === "select"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted hover:text-text"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                ? "text-[#66023C] border-b-2 border-[#66023C]"
+                : "text-[#1E1E1E]/40 hover:text-[#1E1E1E]/70"
+            } disabled:opacity-50`}
           >
             Select Quiz
           </button>
           <button
             onClick={() => setActiveTab("create")}
-            disabled={createGame.isPending || createQuiz.isPending}
-            className={`px-4 py-2 font-semibold transition-colors text-sm ${
+            disabled={isPending}
+            className={`px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] transition-colors ${
               activeTab === "create"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted hover:text-text"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                ? "text-[#66023C] border-b-2 border-[#66023C]"
+                : "text-[#1E1E1E]/40 hover:text-[#1E1E1E]/70"
+            } disabled:opacity-50`}
           >
             Create New Quiz
           </button>
         </div>
 
-        {/* Select Quiz Tab */}
-        {activeTab === "select" && (
-          <div className="space-y-6">
-            {quizzes.length > 0 ? (
-              <div>
-                <label className="block text-sm font-semibold text-text mb-3">
-                  Select a Quiz
-                </label>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {quizzes.map((quiz) => (
-                    <button
-                      key={quiz.id}
-                      type="button"
-                      onClick={() => setSelectedQuizId(quiz.id)}
-                      disabled={createGame.isPending}
-                      className={`w-full p-4 glass rounded-xl border-2 transition-all text-left ${
-                        selectedQuizId === quiz.id
-                          ? "border-primary bg-primary/20"
-                          : "border-transparent hover:border-muted/30"
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      <div className="flex items-center justify-between">
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-8">
+          {activeTab === "select" && (
+            <div className="space-y-6">
+              {quizzes.length > 0 ? (
+                <section className="space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 px-1">
+                    Available Quizzes
+                  </h3>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {quizzes.map((quiz) => (
+                      <button
+                        key={quiz.id}
+                        type="button"
+                        onClick={() => setSelectedQuizId(quiz.id)}
+                        disabled={createGame.isPending}
+                        className={`w-full p-4 rounded-xl border transition-all text-left flex items-center justify-between ${
+                          selectedQuizId === quiz.id
+                            ? "border-[#66023C]/40 bg-[#66023C]/5"
+                            : "border-[#E5DACE] hover:border-[#66023C]/40"
+                        } disabled:opacity-50`}
+                      >
                         <div>
-                          <h3 className="font-semibold text-text text-sm sm:text-base">
+                          <h3 className="font-semibold text-sm">
                             {quiz.title}
                           </h3>
-                          <p className="text-xs sm:text-sm text-muted mt-1">
+                          <p className="text-xs text-[#1E1E1E]/50 mt-1">
                             {quiz.questionsCount} question
                             {quiz.questionsCount === 1 ? "" : "s"}
                           </p>
                         </div>
                         {selectedQuizId === quiz.id && (
-                          <div className="text-primary">
+                          <div className="w-5 h-5 rounded-full bg-[#66023C] flex items-center justify-center shrink-0">
                             <svg
-                              className="w-5 h-5"
+                              className="w-3 h-3 text-white"
                               fill="none"
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth="2"
+                              strokeWidth="3"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
                             >
@@ -314,182 +309,182 @@ export default function CreateGameModal({
                             </svg>
                           </div>
                         )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted mb-4">No quizzes available</p>
-                <p className="text-sm text-muted">
-                  Switch to &quot;Create New Quiz&quot; tab to generate one
-                </p>
-              </div>
-            )}
-
-            {/* Max Players Input */}
-            {selectedQuizId && (
-              <div>
-                <label
-                  htmlFor="max-players"
-                  className="block text-sm font-semibold text-text mb-2"
-                >
-                  Max Players
-                </label>
-                <input
-                  id="max-players"
-                  type="number"
-                  value={maxPlayers}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    if (
-                      !isNaN(value) &&
-                      value > 0 &&
-                      value <= MAX_PLAYERS_LIMIT
-                    ) {
-                      setMaxPlayers(value);
-                    }
-                  }}
-                  min={1}
-                  max={MAX_PLAYERS_LIMIT}
-                  disabled={createGame.isPending}
-                  className="w-full px-4 py-2 glass rounded-lg text-text border border-muted/30 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                <p className="text-xs text-muted mt-1">
-                  Maximum number of players that can join this game (1-
-                  {MAX_PLAYERS_LIMIT})
-                </p>
-              </div>
-            )}
-
-            {/* Advanced Settings */}
-            {selectedQuizId && (
-              <div className="mt-6 pt-6 border-t border-muted/20">
-                <button
-                  type="button"
-                  onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                  disabled={createGame.isPending}
-                  className="w-full flex items-center justify-between text-sm font-semibold text-text hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span>Advanced Settings</span>
-                  <svg
-                    className={`w-5 h-5 transition-transform ${
-                      showAdvancedSettings ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {showAdvancedSettings && (
-                  <div className="mt-4 space-y-4">
-                    {/* Points Per Question */}
-                    <div>
-                      <label
-                        htmlFor="points-per-question"
-                        className="block text-sm font-semibold text-text mb-2"
-                      >
-                        Points Per Question
-                      </label>
-                      <input
-                        id="points-per-question"
-                        type="number"
-                        value={pointsPerQuestion}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          if (!isNaN(value) && value > 0) {
-                            setPointsPerQuestion(value);
-                          }
-                        }}
-                        min={1}
-                        disabled={createGame.isPending}
-                        className="w-full px-4 py-2 glass rounded-lg text-text border border-muted/30 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                      />
-                      <p className="text-xs text-muted mt-1">
-                        Points awarded for each correct answer
-                      </p>
-                    </div>
-
-                    {/* Time Per Question */}
-                    <div>
-                      <label
-                        htmlFor="time-per-question"
-                        className="block text-sm font-semibold text-text mb-2"
-                      >
-                        Time Per Question (seconds)
-                      </label>
-                      <input
-                        id="time-per-question"
-                        type="number"
-                        value={timePerQuestion}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          if (!isNaN(value) && value > 0) {
-                            setTimePerQuestion(value);
-                          }
-                        }}
-                        min={1}
-                        disabled={createGame.isPending}
-                        className="w-full px-4 py-2 glass rounded-lg text-text border border-muted/30 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                      />
-                      <p className="text-xs text-muted mt-1">
-                        Time limit in seconds for each question
-                      </p>
-                    </div>
+                      </button>
+                    ))}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Create Quiz Tab */}
-        {activeTab === "create" && (
-          <CreateQuiz
-            studySetId={studySetId}
-            description={description}
-            documents={documents}
-            isLoading={createQuiz.isPending}
-            onSubmit={handleCreateQuiz}
-            showSubmitButton={true}
-            submitButtonText={
-              createQuiz.isPending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <LoadingSpinner size="sm" />
-                  Creating Quiz...
-                </span>
+                </section>
               ) : (
-                "Create Quiz"
-              )
-            }
-          />
-        )}
-
-        {/* Create Game Button (shown when quiz is selected) */}
-        {activeTab === "select" && selectedQuizId && (
-          <div className="mt-6 pt-6 border-t border-muted/20">
-            <button
-              onClick={handleCreateGame}
-              disabled={createGame.isPending || !selectedQuizId}
-              className="w-full px-4 py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            >
-              {createGame.isPending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <LoadingSpinner size="sm" />
-                  Creating Game...
-                </span>
-              ) : (
-                "Create Game"
+                <div className="text-center py-12">
+                  <span className="material-symbols-outlined text-4xl text-[#1E1E1E]/20 mb-4 block">
+                    quiz
+                  </span>
+                  <p className="text-sm font-semibold text-[#1E1E1E]/40 mb-2">
+                    No quizzes available
+                  </p>
+                  <p className="text-xs text-[#1E1E1E]/30">
+                    Switch to &quot;Create New Quiz&quot; tab to generate one
+                  </p>
+                </div>
               )}
-            </button>
-          </div>
+
+              {/* Game Settings (shown when quiz selected) */}
+              {selectedQuizId && (
+                <>
+                  <section className="space-y-3 pt-4 border-t border-[#E5DACE]">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 px-1">
+                      Game Settings
+                    </h3>
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold block text-[#1E1E1E]/80">
+                        Max Players
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="number"
+                          value={maxPlayers}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (
+                              !isNaN(value) &&
+                              value > 0 &&
+                              value <= MAX_PLAYERS_LIMIT
+                            ) {
+                              setMaxPlayers(value);
+                            }
+                          }}
+                          min={1}
+                          max={MAX_PLAYERS_LIMIT}
+                          disabled={createGame.isPending}
+                          className="w-full bg-[#F9F2E9] border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-[#66023C]/20 focus:outline-none disabled:opacity-50"
+                        />
+                        <span className="absolute right-4 text-xs font-bold text-[#1E1E1E]/30 uppercase tracking-tighter">
+                          Players
+                        </span>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Advanced Settings */}
+                  <section className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowAdvancedSettings(!showAdvancedSettings)
+                      }
+                      disabled={createGame.isPending}
+                      className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 hover:text-[#66023C] transition-colors disabled:opacity-50 px-1"
+                    >
+                      <span>Advanced Settings</span>
+                      <span
+                        className={`material-symbols-outlined text-lg transition-transform ${
+                          showAdvancedSettings ? "rotate-180" : ""
+                        }`}
+                      >
+                        expand_more
+                      </span>
+                    </button>
+
+                    {showAdvancedSettings && (
+                      <div className="mt-4 space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <label className="text-sm font-semibold block text-[#1E1E1E]/80">
+                              Points Per Question
+                            </label>
+                            <input
+                              type="number"
+                              value={pointsPerQuestion}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                if (!isNaN(value) && value > 0)
+                                  setPointsPerQuestion(value);
+                              }}
+                              min={1}
+                              disabled={createGame.isPending}
+                              className="w-full bg-[#F9F2E9] border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-[#66023C]/20 focus:outline-none disabled:opacity-50"
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-sm font-semibold block text-[#1E1E1E]/80">
+                              Time Per Question (s)
+                            </label>
+                            <input
+                              type="number"
+                              value={timePerQuestion}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                if (!isNaN(value) && value > 0)
+                                  setTimePerQuestion(value);
+                              }}
+                              min={1}
+                              disabled={createGame.isPending}
+                              className="w-full bg-[#F9F2E9] border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-[#66023C]/20 focus:outline-none disabled:opacity-50"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                </>
+              )}
+            </div>
+          )}
+
+          {activeTab === "create" && (
+            <div>
+              <div className="space-y-2 mb-8">
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Create Quiz for Game
+                </h2>
+                <p className="text-[#1E1E1E]/60 leading-relaxed max-w-md text-sm">
+                  Generate a new quiz, then use it to create your live game.
+                </p>
+              </div>
+              <CreateQuiz
+                studySetId={studySetId}
+                description={description}
+                documents={documents}
+                isLoading={createQuiz.isPending}
+                onSubmit={handleCreateQuiz}
+                showSubmitButton={true}
+                submitButtonText={
+                  createQuiz.isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <LoadingSpinner size="sm" />
+                      Creating Quiz...
+                    </span>
+                  ) : (
+                    "Create Quiz"
+                  )
+                }
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {activeTab === "select" && selectedQuizId && (
+          <footer className="px-6 sm:px-8 py-6 sm:py-8 bg-[#F9F2E9]/50 border-t border-[#E5DACE] shrink-0">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+              <p className="text-xs text-[#1E1E1E]/40 italic">
+                Players will join using a code or QR.
+              </p>
+              <button
+                onClick={handleCreateGame}
+                disabled={createGame.isPending || !selectedQuizId}
+                className="w-full sm:w-auto px-10 py-4 bg-[#66023C] text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-[#66023C]/20 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {createGame.isPending ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <LoadingSpinner size="sm" />
+                    Creating Game...
+                  </span>
+                ) : (
+                  "Create Game"
+                )}
+              </button>
+            </div>
+          </footer>
         )}
       </div>
     </div>

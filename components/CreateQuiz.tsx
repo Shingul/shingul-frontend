@@ -4,7 +4,6 @@ import { useState } from "react";
 import { MAX_QUIZ_QUESTIONS_LIMIT } from "@/lib/constants";
 import type { Document } from "@/src/types/api";
 import toast from "react-hot-toast";
-import { HiOutlineClipboardDocumentList, HiOutlineDocumentText, HiOutlinePencilSquare } from "react-icons/hi2";
 
 type SourceType = "description" | "document" | "text";
 
@@ -28,7 +27,6 @@ export interface CreateQuizProps {
 }
 
 export default function CreateQuiz({
-  studySetId,
   description,
   documents = [],
   isLoading = false,
@@ -64,7 +62,6 @@ export default function CreateQuiz({
 
   const toggleSource = (source: SourceType) => {
     if (isLoading) return;
-
     const newSources = new Set(selectedSources);
     if (newSources.has(source)) {
       newSources.delete(source);
@@ -76,7 +73,6 @@ export default function CreateQuiz({
 
   const toggleDocument = (documentId: number) => {
     if (isLoading) return;
-
     const newDocumentIds = new Set(selectedDocumentIds);
     if (newDocumentIds.has(documentId)) {
       newDocumentIds.delete(documentId);
@@ -91,22 +87,18 @@ export default function CreateQuiz({
       toast.error("Please select at least one source", { duration: 3000 });
       return false;
     }
-
     if (selectedSources.has("document") && selectedDocumentIds.size === 0) {
       toast.error("Please select at least one document", { duration: 3000 });
       return false;
     }
-
     if (selectedSources.has("text") && !customText.trim()) {
       toast.error("Please enter custom text", { duration: 3000 });
       return false;
     }
-
     if (selectedSources.has("description") && !description) {
       toast.error("Description source is not available", { duration: 3000 });
       return false;
     }
-
     if (questionCount < 1 || questionCount > MAX_QUIZ_QUESTIONS_LIMIT) {
       toast.error(
         `Question count must be between 1 and ${MAX_QUIZ_QUESTIONS_LIMIT}`,
@@ -114,17 +106,12 @@ export default function CreateQuiz({
       );
       return false;
     }
-
     return true;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     onSubmit({
       selectedSources,
       selectedDocumentIds,
@@ -134,148 +121,103 @@ export default function CreateQuiz({
     });
   };
 
-  // Expose reset function via ref or callback
-  // For now, we'll use a useEffect pattern or expose it via props
-  // The parent can call resetForm when needed
+  void resetForm;
+
+  const sources = [
+    {
+      type: "description" as SourceType,
+      icon: "description",
+      label: "Use Description",
+      sub: description ? "Available" : "No description",
+      disabled: !description,
+    },
+    {
+      type: "document" as SourceType,
+      icon: "picture_as_pdf",
+      label: "Use PDF Document",
+      sub:
+        availableDocuments.length > 0
+          ? `${availableDocuments.length} available`
+          : "No PDFs",
+      disabled: availableDocuments.length === 0,
+    },
+    {
+      type: "text" as SourceType,
+      icon: "auto_awesome",
+      label: "Custom Prompt",
+      sub: "Give specific instructions for AI",
+      disabled: false,
+    },
+  ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Source Selection */}
-      <div>
-        <label className="block text-sm font-semibold text-text mb-3">
-          Select Source(s)
-        </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button
-            type="button"
-            onClick={() => toggleSource("description")}
-            disabled={!description || isLoading}
-            className={`relative p-4 glass rounded-xl border-2 transition-all text-left ${
-              selectedSources.has("description")
-                ? "border-primary bg-primary/20"
-                : "border-transparent hover:border-muted/30"
-            } ${!description ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {selectedSources.has("description") && (
-              <div className="absolute top-2 right-2 text-primary">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Source Material */}
+      <section className="space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 px-1">
+          Source Material
+        </h3>
+        <div className="grid gap-3">
+          {sources.map((src) => (
+            <label
+              key={src.type}
+              className={`group relative flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                selectedSources.has(src.type)
+                  ? "border-[#66023C]/40 bg-[#66023C]/5"
+                  : "border-[#E5DACE] hover:border-[#66023C]/40"
+              } ${src.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                    selectedSources.has(src.type)
+                      ? "bg-[#66023C]/10 text-[#66023C]"
+                      : "bg-[#F9F2E9] text-[#1E1E1E]/70 group-hover:text-[#66023C]"
+                  }`}
                 >
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
+                  <span className="material-symbols-outlined">{src.icon}</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">{src.label}</p>
+                  <p className="text-xs text-[#1E1E1E]/50">{src.sub}</p>
+                </div>
               </div>
-            )}
-            <div className="text-2xl mb-2 flex justify-center"><HiOutlineClipboardDocumentList className="w-8 h-8 text-primary" /></div>
-            <div className="font-semibold text-text text-sm">
-              Use Description
-            </div>
-            <div className="text-xs text-muted mt-1">
-              {description ? "Available" : "No description"}
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => toggleSource("document")}
-            disabled={availableDocuments.length === 0 || isLoading}
-            className={`relative p-4 glass rounded-xl border-2 transition-all text-left ${
-              selectedSources.has("document")
-                ? "border-primary bg-primary/20"
-                : "border-transparent hover:border-muted/30"
-            } ${
-              availableDocuments.length === 0
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-          >
-            {selectedSources.has("document") && (
-              <div className="absolute top-2 right-2 text-primary">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
-            <div className="text-2xl mb-2 flex justify-center"><HiOutlineDocumentText className="w-8 h-8 text-primary" /></div>
-            <div className="font-semibold text-text text-sm">
-              Use PDF Document(s)
-            </div>
-            <div className="text-xs text-muted mt-1">
-              {availableDocuments.length > 0
-                ? `${availableDocuments.length} available`
-                : "No PDFs"}
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => toggleSource("text")}
-            disabled={isLoading}
-            className={`relative p-4 glass rounded-xl border-2 transition-all text-left ${
-              selectedSources.has("text")
-                ? "border-primary bg-primary/20"
-                : "border-transparent hover:border-muted/30"
-            }`}
-          >
-            {selectedSources.has("text") && (
-              <div className="absolute top-2 right-2 text-primary">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
-            <div className="text-2xl mb-2 flex justify-center"><HiOutlinePencilSquare className="w-8 h-8 text-primary" /></div>
-            <div className="font-semibold text-text text-sm">Custom Prompt</div>
-            <div className="text-xs text-muted mt-1">Enter your text</div>
-          </button>
+              <input
+                type="checkbox"
+                checked={selectedSources.has(src.type)}
+                onChange={() => !src.disabled && toggleSource(src.type)}
+                disabled={src.disabled || isLoading}
+                className="w-5 h-5 text-[#66023C] border-[#E5DACE] focus:ring-[#66023C] rounded cursor-pointer accent-[#66023C]"
+              />
+            </label>
+          ))}
         </div>
-      </div>
+      </section>
 
       {/* Document Selection */}
       {selectedSources.has("document") && availableDocuments.length > 0 && (
-        <div>
-          <label className="block text-sm font-semibold text-text mb-2">
-            Select PDF Document(s) ({selectedDocumentIds.size} selected)
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2">
+        <section className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 px-1">
+            Select Documents ({selectedDocumentIds.size} selected)
+          </h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
             {availableDocuments.map((doc) => (
               <button
                 key={doc.id}
                 type="button"
                 onClick={() => toggleDocument(Number(doc.id))}
                 disabled={isLoading}
-                className={`w-full p-3 glass rounded-lg border-2 transition-all text-left flex items-center gap-3 ${
+                className={`w-full p-3 rounded-lg border transition-all text-left flex items-center gap-3 ${
                   selectedDocumentIds.has(Number(doc.id))
-                    ? "border-primary bg-primary/20"
-                    : "border-transparent hover:border-muted/30"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    ? "border-[#66023C]/40 bg-[#66023C]/5"
+                    : "border-[#E5DACE] hover:border-[#66023C]/40"
+                } disabled:opacity-50`}
               >
                 <div
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
                     selectedDocumentIds.has(Number(doc.id))
-                      ? "bg-primary border-primary"
-                      : "border-muted/50"
+                      ? "bg-[#66023C] border-[#66023C]"
+                      : "border-[#E5DACE]"
                   }`}
                 >
                   {selectedDocumentIds.has(Number(doc.id)) && (
@@ -293,93 +235,101 @@ export default function CreateQuiz({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-text text-sm truncate">
+                  <p className="font-semibold text-sm truncate">
                     {doc.filename}
-                  </div>
-                  <div className="text-xs text-muted">
+                  </p>
+                  <p className="text-xs text-[#1E1E1E]/50">
                     {doc.pageCount} pages
-                  </div>
+                  </p>
                 </div>
               </button>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Custom Text Input */}
+      {/* Custom Text */}
       {selectedSources.has("text") && (
-        <div>
-          <label className="block text-sm font-semibold text-text mb-2">
-            Enter Your Text
-          </label>
+        <section className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 px-1">
+            Custom Prompt
+          </h3>
           <textarea
             value={customText}
             onChange={(e) => setCustomText(e.target.value)}
             disabled={isLoading}
             placeholder="Enter the text you want to generate quiz questions from..."
-            rows={6}
-            className="w-full px-4 py-2 glass rounded-lg text-text placeholder-muted border border-muted/30 focus:outline-none focus:ring-2 focus:ring-primary resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+            rows={5}
+            className="w-full bg-[#F9F2E9] border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-[#66023C]/20 focus:outline-none placeholder:text-[#1E1E1E]/30 resize-none disabled:opacity-50"
             required
           />
-        </div>
+        </section>
       )}
 
-      {/* Number of Questions */}
-      <div>
-        <label
-          htmlFor="question-count"
-          className="block text-sm font-semibold text-text mb-2"
-        >
-          Number of Questions (Max {MAX_QUIZ_QUESTIONS_LIMIT})
-        </label>
-        <input
-          id="question-count"
-          type="number"
-          value={questionCount}
-          onChange={(e) => {
-            const value = parseInt(e.target.value);
-            if (
-              !isNaN(value) &&
-              value >= 1 &&
-              value <= MAX_QUIZ_QUESTIONS_LIMIT
-            ) {
-              setQuestionCount(value);
-            }
-          }}
-          min={1}
-          max={MAX_QUIZ_QUESTIONS_LIMIT}
-          disabled={isLoading}
-          className="w-full px-4 py-2 glass rounded-lg text-text border border-muted/30 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-        />
-      </div>
+      {/* Configuration */}
+      <section className="space-y-6 pt-2">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-[#1E1E1E]/40 px-1">
+          Configuration
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <label className="text-sm font-semibold block text-[#1E1E1E]/80">
+              Number of Questions
+            </label>
+            <div className="relative flex items-center">
+              <input
+                type="number"
+                min={1}
+                max={MAX_QUIZ_QUESTIONS_LIMIT}
+                value={questionCount}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (
+                    !isNaN(value) &&
+                    value >= 1 &&
+                    value <= MAX_QUIZ_QUESTIONS_LIMIT
+                  ) {
+                    setQuestionCount(value);
+                  }
+                }}
+                disabled={isLoading}
+                className="w-full bg-[#F9F2E9] border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-[#66023C]/20 focus:outline-none placeholder:text-[#1E1E1E]/30 disabled:opacity-50"
+                placeholder="e.g. 10"
+              />
+              <span className="absolute right-4 text-xs font-bold text-[#1E1E1E]/30 uppercase tracking-tighter">
+                Qs
+              </span>
+            </div>
+          </div>
 
-      {/* Difficulty Selection */}
-      <div>
-        <label className="block text-sm font-semibold text-text mb-3">
-          Difficulty Level
-        </label>
-        <div className="flex gap-3">
-          {(["easy", "medium", "hard"] as const).map((level) => (
-            <button
-              key={level}
-              type="button"
-              onClick={() => setDifficulty(level)}
-              disabled={isLoading}
-              className={`flex-1 px-4 py-3 glass rounded-lg font-semibold transition-all capitalize ${
-                difficulty === level
-                  ? "bg-primary/20 text-primary border-2 border-primary"
-                  : "text-muted hover:text-text border-2 border-transparent"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {level}
-            </button>
-          ))}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold block text-[#1E1E1E]/80">
+              Difficulty Level
+            </label>
+            <div className="flex p-1 bg-[#F9F2E9] rounded-lg">
+              {(["easy", "medium", "hard"] as const).map((level) => (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setDifficulty(level)}
+                  disabled={isLoading}
+                  className={`flex-1 py-2 text-xs font-bold rounded-md transition-all capitalize ${
+                    difficulty === level
+                      ? "bg-white text-[#66023C] shadow-sm ring-1 ring-[#E5DACE]"
+                      : "text-[#1E1E1E]/40 hover:text-[#1E1E1E]"
+                  } disabled:opacity-50`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Submit Button */}
+      {/* Submit */}
       {showSubmitButton && (
-        <div className="flex gap-3 pt-4">
+        <div className="pt-4">
           <button
             type="submit"
             disabled={
@@ -392,7 +342,7 @@ export default function CreateQuiz({
               questionCount < 1 ||
               questionCount > MAX_QUIZ_QUESTIONS_LIMIT
             }
-            className="flex-1 px-4 py-2.5 bg-linear-to-r from-primary to-primary2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="w-full sm:w-auto px-10 py-4 bg-[#66023C] text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-[#66023C]/20 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitButtonText || "Generate Quiz"}
           </button>
@@ -402,7 +352,6 @@ export default function CreateQuiz({
   );
 }
 
-// Export helper function to build payload from form data
 export function buildQuizPayload(
   studySetId: string,
   formData: CreateQuizFormData,
